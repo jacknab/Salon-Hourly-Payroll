@@ -6,6 +6,14 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './accountSettings';
+export * from './accountSettingsFederalDepositSchedule';
+export * from './accountSettingsPayrollFrequency';
+export * from './accountSettingsStateWithholdingFrequency';
+export * from './accountSettingsUpdate';
+export * from './accountSettingsUpdateFederalDepositSchedule';
+export * from './accountSettingsUpdatePayrollFrequency';
+export * from './accountSettingsUpdateStateWithholdingFrequency';
 export * from './contractor';
 export * from './contractorInput';
 export * from './contractorInputStatus';

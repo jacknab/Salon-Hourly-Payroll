@@ -38,6 +38,35 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PayrollSummary"
+  /account-settings:
+    get:
+      operationId: getAccountSettings
+      tags: [payroll]
+      summary: Get employer payroll setup
+      responses:
+        "200":
+          description: Employer payroll setup
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountSettings"
+    patch:
+      operationId: updateAccountSettings
+      tags: [payroll]
+      summary: Update employer payroll setup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountSettingsUpdate"
+      responses:
+        "200":
+          description: Updated employer payroll setup
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountSettings"
   /staff:
     get:
       operationId: listStaff
@@ -318,6 +347,101 @@ components:
           type: string
       required:
         - status
+    AccountSettings:
+      type: object
+      required: [id, businessName, legalName, addressLine1, addressLine2, city, state, postalCode, phone, payrollFrequency, defaultWorkState, federalDepositSchedule, stateWithholdingFrequency, einOnFile, stateAccountOnFile, eftpsEnrolled, ssaBsoEnrolled, irsIrisEnrolled, updatedAt]
+      properties:
+        id:
+          type: integer
+        businessName:
+          type: string
+        legalName:
+          type: ["string", "null"]
+        addressLine1:
+          type: ["string", "null"]
+        addressLine2:
+          type: ["string", "null"]
+        city:
+          type: ["string", "null"]
+        state:
+          type: string
+          minLength: 2
+          maxLength: 2
+        postalCode:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        payrollFrequency:
+          type: string
+          enum: [weekly, biweekly, semimonthly, monthly]
+        defaultWorkState:
+          type: string
+          minLength: 2
+          maxLength: 2
+        federalDepositSchedule:
+          type: string
+          enum: [monthly, semiweekly, next_day, quarterly]
+        stateWithholdingFrequency:
+          type: string
+          enum: [monthly, quarterly, annual]
+        einOnFile:
+          type: boolean
+        stateAccountOnFile:
+          type: boolean
+        eftpsEnrolled:
+          type: boolean
+        ssaBsoEnrolled:
+          type: boolean
+        irsIrisEnrolled:
+          type: boolean
+        updatedAt:
+          type: string
+          format: date-time
+    AccountSettingsUpdate:
+      type: object
+      properties:
+        businessName:
+          type: string
+          minLength: 1
+        legalName:
+          type: string
+        addressLine1:
+          type: string
+        addressLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+          minLength: 2
+          maxLength: 2
+        postalCode:
+          type: string
+        phone:
+          type: string
+        payrollFrequency:
+          type: string
+          enum: [weekly, biweekly, semimonthly, monthly]
+        defaultWorkState:
+          type: string
+          minLength: 2
+          maxLength: 2
+        federalDepositSchedule:
+          type: string
+          enum: [monthly, semiweekly, next_day, quarterly]
+        stateWithholdingFrequency:
+          type: string
+          enum: [monthly, quarterly, annual]
+        einOnFile:
+          type: boolean
+        stateAccountOnFile:
+          type: boolean
+        eftpsEnrolled:
+          type: boolean
+        ssaBsoEnrolled:
+          type: boolean
+        irsIrisEnrolled:
+          type: boolean
     Staff:
       type: object
       required: [id, firstName, lastName, role, hourlyRate, status, federalFilingStatus, federalAllowances, extraFederalWithholding, workState, stateAllowances, extraStateWithholding, ytdWages, ytdFutaWages, taxProfileReviewed]

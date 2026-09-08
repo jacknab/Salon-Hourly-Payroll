@@ -47,6 +47,103 @@ export const GetPayrollSummaryResponse = zod.object({
 
 
 /**
+ * @summary Get employer payroll setup
+ */
+export const getAccountSettingsResponseStateMin = 2;
+export const getAccountSettingsResponseStateMax = 2;
+
+export const getAccountSettingsResponseDefaultWorkStateMin = 2;
+export const getAccountSettingsResponseDefaultWorkStateMax = 2;
+
+
+
+export const GetAccountSettingsResponse = zod.object({
+  "id": zod.number().int(),
+  "businessName": zod.string(),
+  "legalName": zod.string().nullable(),
+  "addressLine1": zod.string().nullable(),
+  "addressLine2": zod.string().nullable(),
+  "city": zod.string().nullable(),
+  "state": zod.string().min(getAccountSettingsResponseStateMin).max(getAccountSettingsResponseStateMax),
+  "postalCode": zod.string().nullable(),
+  "phone": zod.string().nullable(),
+  "payrollFrequency": zod.enum(['weekly', 'biweekly', 'semimonthly', 'monthly']),
+  "defaultWorkState": zod.string().min(getAccountSettingsResponseDefaultWorkStateMin).max(getAccountSettingsResponseDefaultWorkStateMax),
+  "federalDepositSchedule": zod.enum(['monthly', 'semiweekly', 'next_day', 'quarterly']),
+  "stateWithholdingFrequency": zod.enum(['monthly', 'quarterly', 'annual']),
+  "einOnFile": zod.boolean(),
+  "stateAccountOnFile": zod.boolean(),
+  "eftpsEnrolled": zod.boolean(),
+  "ssaBsoEnrolled": zod.boolean(),
+  "irsIrisEnrolled": zod.boolean(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Update employer payroll setup
+ */
+
+export const updateAccountSettingsBodyStateMin = 2;
+export const updateAccountSettingsBodyStateMax = 2;
+
+export const updateAccountSettingsBodyDefaultWorkStateMin = 2;
+export const updateAccountSettingsBodyDefaultWorkStateMax = 2;
+
+
+
+export const UpdateAccountSettingsBody = zod.object({
+  "businessName": zod.string().min(1).optional(),
+  "legalName": zod.string().optional(),
+  "addressLine1": zod.string().optional(),
+  "addressLine2": zod.string().optional(),
+  "city": zod.string().optional(),
+  "state": zod.string().min(updateAccountSettingsBodyStateMin).max(updateAccountSettingsBodyStateMax).optional(),
+  "postalCode": zod.string().optional(),
+  "phone": zod.string().optional(),
+  "payrollFrequency": zod.enum(['weekly', 'biweekly', 'semimonthly', 'monthly']).optional(),
+  "defaultWorkState": zod.string().min(updateAccountSettingsBodyDefaultWorkStateMin).max(updateAccountSettingsBodyDefaultWorkStateMax).optional(),
+  "federalDepositSchedule": zod.enum(['monthly', 'semiweekly', 'next_day', 'quarterly']).optional(),
+  "stateWithholdingFrequency": zod.enum(['monthly', 'quarterly', 'annual']).optional(),
+  "einOnFile": zod.boolean().optional(),
+  "stateAccountOnFile": zod.boolean().optional(),
+  "eftpsEnrolled": zod.boolean().optional(),
+  "ssaBsoEnrolled": zod.boolean().optional(),
+  "irsIrisEnrolled": zod.boolean().optional()
+})
+
+export const updateAccountSettingsResponseStateMin = 2;
+export const updateAccountSettingsResponseStateMax = 2;
+
+export const updateAccountSettingsResponseDefaultWorkStateMin = 2;
+export const updateAccountSettingsResponseDefaultWorkStateMax = 2;
+
+
+
+export const UpdateAccountSettingsResponse = zod.object({
+  "id": zod.number().int(),
+  "businessName": zod.string(),
+  "legalName": zod.string().nullable(),
+  "addressLine1": zod.string().nullable(),
+  "addressLine2": zod.string().nullable(),
+  "city": zod.string().nullable(),
+  "state": zod.string().min(updateAccountSettingsResponseStateMin).max(updateAccountSettingsResponseStateMax),
+  "postalCode": zod.string().nullable(),
+  "phone": zod.string().nullable(),
+  "payrollFrequency": zod.enum(['weekly', 'biweekly', 'semimonthly', 'monthly']),
+  "defaultWorkState": zod.string().min(updateAccountSettingsResponseDefaultWorkStateMin).max(updateAccountSettingsResponseDefaultWorkStateMax),
+  "federalDepositSchedule": zod.enum(['monthly', 'semiweekly', 'next_day', 'quarterly']),
+  "stateWithholdingFrequency": zod.enum(['monthly', 'quarterly', 'annual']),
+  "einOnFile": zod.boolean(),
+  "stateAccountOnFile": zod.boolean(),
+  "eftpsEnrolled": zod.boolean(),
+  "ssaBsoEnrolled": zod.boolean(),
+  "irsIrisEnrolled": zod.boolean(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
  * @summary List salon staff
  */
 export const listStaffResponseFederalAllowancesMin = 0;

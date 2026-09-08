@@ -22,3 +22,4 @@ export * from "./time-entries";
 export * from "./pay-periods";
 export * from "./pay-runs";
 export * from "./contractors";
+export * from "./account-settings";

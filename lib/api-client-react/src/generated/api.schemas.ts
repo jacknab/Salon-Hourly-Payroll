@@ -9,6 +9,129 @@ export interface HealthStatus {
   status: string;
 }
 
+export type AccountSettingsPayrollFrequency = typeof AccountSettingsPayrollFrequency[keyof typeof AccountSettingsPayrollFrequency];
+
+
+export const AccountSettingsPayrollFrequency = {
+  weekly: 'weekly',
+  biweekly: 'biweekly',
+  semimonthly: 'semimonthly',
+  monthly: 'monthly',
+} as const;
+
+export type AccountSettingsFederalDepositSchedule = typeof AccountSettingsFederalDepositSchedule[keyof typeof AccountSettingsFederalDepositSchedule];
+
+
+export const AccountSettingsFederalDepositSchedule = {
+  monthly: 'monthly',
+  semiweekly: 'semiweekly',
+  next_day: 'next_day',
+  quarterly: 'quarterly',
+} as const;
+
+export type AccountSettingsStateWithholdingFrequency = typeof AccountSettingsStateWithholdingFrequency[keyof typeof AccountSettingsStateWithholdingFrequency];
+
+
+export const AccountSettingsStateWithholdingFrequency = {
+  monthly: 'monthly',
+  quarterly: 'quarterly',
+  annual: 'annual',
+} as const;
+
+export interface AccountSettings {
+  id: number;
+  businessName: string;
+  /** @nullable */
+  legalName: string | null;
+  /** @nullable */
+  addressLine1: string | null;
+  /** @nullable */
+  addressLine2: string | null;
+  /** @nullable */
+  city: string | null;
+  /**
+     * @minLength 2
+     * @maxLength 2
+     */
+  state: string;
+  /** @nullable */
+  postalCode: string | null;
+  /** @nullable */
+  phone: string | null;
+  payrollFrequency: AccountSettingsPayrollFrequency;
+  /**
+     * @minLength 2
+     * @maxLength 2
+     */
+  defaultWorkState: string;
+  federalDepositSchedule: AccountSettingsFederalDepositSchedule;
+  stateWithholdingFrequency: AccountSettingsStateWithholdingFrequency;
+  einOnFile: boolean;
+  stateAccountOnFile: boolean;
+  eftpsEnrolled: boolean;
+  ssaBsoEnrolled: boolean;
+  irsIrisEnrolled: boolean;
+  updatedAt: string;
+}
+
+export type AccountSettingsUpdatePayrollFrequency = typeof AccountSettingsUpdatePayrollFrequency[keyof typeof AccountSettingsUpdatePayrollFrequency];
+
+
+export const AccountSettingsUpdatePayrollFrequency = {
+  weekly: 'weekly',
+  biweekly: 'biweekly',
+  semimonthly: 'semimonthly',
+  monthly: 'monthly',
+} as const;
+
+export type AccountSettingsUpdateFederalDepositSchedule = typeof AccountSettingsUpdateFederalDepositSchedule[keyof typeof AccountSettingsUpdateFederalDepositSchedule];
+
+
+export const AccountSettingsUpdateFederalDepositSchedule = {
+  monthly: 'monthly',
+  semiweekly: 'semiweekly',
+  next_day: 'next_day',
+  quarterly: 'quarterly',
+} as const;
+
+export type AccountSettingsUpdateStateWithholdingFrequency = typeof AccountSettingsUpdateStateWithholdingFrequency[keyof typeof AccountSettingsUpdateStateWithholdingFrequency];
+
+
+export const AccountSettingsUpdateStateWithholdingFrequency = {
+  monthly: 'monthly',
+  quarterly: 'quarterly',
+  annual: 'annual',
+} as const;
+
+export interface AccountSettingsUpdate {
+  /** @minLength 1 */
+  businessName?: string;
+  legalName?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  /**
+     * @minLength 2
+     * @maxLength 2
+     */
+  state?: string;
+  postalCode?: string;
+  phone?: string;
+  payrollFrequency?: AccountSettingsUpdatePayrollFrequency;
+  /**
+     * @minLength 2
+     * @maxLength 2
+     */
+  defaultWorkState?: string;
+  federalDepositSchedule?: AccountSettingsUpdateFederalDepositSchedule;
+  stateWithholdingFrequency?: AccountSettingsUpdateStateWithholdingFrequency;
+  einOnFile?: boolean;
+  stateAccountOnFile?: boolean;
+  eftpsEnrolled?: boolean;
+  ssaBsoEnrolled?: boolean;
+  irsIrisEnrolled?: boolean;
+}
+
 export type StaffStatus = typeof StaffStatus[keyof typeof StaffStatus];
 
 

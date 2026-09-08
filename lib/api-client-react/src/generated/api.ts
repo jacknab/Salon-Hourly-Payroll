@@ -20,6 +20,8 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AccountSettings,
+  AccountSettingsUpdate,
   Contractor,
   ContractorInput,
   ContractorUpdate,
@@ -218,6 +220,154 @@ export function useGetPayrollSummary<TData = Awaited<ReturnType<typeof getPayrol
 
 
 
+
+export const getGetAccountSettingsUrl = () => {
+
+
+
+
+  return `/api/account-settings`
+}
+
+/**
+ * @summary Get employer payroll setup
+ */
+export const getAccountSettings = async ( options?: Parameters<typeof customFetch>[1]): Promise<AccountSettings> => {
+
+  return customFetch<AccountSettings>(getGetAccountSettingsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAccountSettingsQueryKey = () => {
+    return [
+    `/api/account-settings`
+    ] as const;
+    }
+
+
+export const getGetAccountSettingsQueryOptions = <TData = Awaited<ReturnType<typeof getAccountSettings>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAccountSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAccountSettingsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAccountSettings>>> = ({ signal }) => getAccountSettings({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAccountSettings>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAccountSettingsQueryResult = NonNullable<Awaited<ReturnType<typeof getAccountSettings>>>
+export type GetAccountSettingsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get employer payroll setup
+ */
+
+export function useGetAccountSettings<TData = Awaited<ReturnType<typeof getAccountSettings>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAccountSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAccountSettingsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateAccountSettingsUrl = () => {
+
+
+
+
+  return `/api/account-settings`
+}
+
+/**
+ * @summary Update employer payroll setup
+ */
+export const updateAccountSettings = async (accountSettingsUpdate: AccountSettingsUpdate, options?: Parameters<typeof customFetch>[1]): Promise<AccountSettings> => {
+
+  return customFetch<AccountSettings>(getUpdateAccountSettingsUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(accountSettingsUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateAccountSettingsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAccountSettings>>, TError,{data: BodyType<AccountSettingsUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateAccountSettings>>, TError,{data: BodyType<AccountSettingsUpdate>}, TContext> => {
+
+const mutationKey = ['updateAccountSettings'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAccountSettings>>, {data: BodyType<AccountSettingsUpdate>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateAccountSettings(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateAccountSettingsMutationResult = NonNullable<Awaited<ReturnType<typeof updateAccountSettings>>>
+    export type UpdateAccountSettingsMutationBody = BodyType<AccountSettingsUpdate>
+    export type UpdateAccountSettingsMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update employer payroll setup
+ */
+export const useUpdateAccountSettings = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAccountSettings>>, TError,{data: BodyType<AccountSettingsUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateAccountSettings>>,
+        TError,
+        {data: BodyType<AccountSettingsUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateAccountSettingsMutationOptions(options));
+    }
 
 export const getListStaffUrl = () => {
 
