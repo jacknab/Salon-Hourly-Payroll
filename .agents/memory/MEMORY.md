@@ -1,1 +1,2 @@
 - [Artifact build environment](artifact-build-environment.md) — managed Vite services supply PORT and BASE_PATH; bare workspace builds need explicit artifact variables.
+- [Workspace package links](pnpm-workspace-links.md) — run a real pnpm install after workspace dependency/export changes so tooling sees refreshed symlinks.

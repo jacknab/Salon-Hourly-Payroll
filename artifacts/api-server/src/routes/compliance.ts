@@ -10,6 +10,7 @@ import {
   UpdateContractorResponse,
 } from "@workspace/api-zod";
 import { contractorsTable, db } from "@workspace/db";
+import { hasSensitiveIdentifierField } from "../lib/compliance-security";
 
 const router: IRouter = Router();
 type ContractorRow = typeof contractorsTable.$inferSelect;
@@ -46,6 +47,10 @@ router.get("/contractors", async (_req, res): Promise<void> => {
 });
 
 router.post("/contractors", async (req, res): Promise<void> => {
+  if (hasSensitiveIdentifierField(req.body)) {
+    res.status(400).json({ error: "TIN and SSN fields must be entered only in a secure filing channel" });
+    return;
+  }
   const parsed = CreateContractorBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -59,6 +64,10 @@ router.post("/contractors", async (req, res): Promise<void> => {
 });
 
 router.patch("/contractors/:id", async (req, res): Promise<void> => {
+  if (hasSensitiveIdentifierField(req.body)) {
+    res.status(400).json({ error: "TIN and SSN fields must be entered only in a secure filing channel" });
+    return;
+  }
   const params = UpdateContractorParams.safeParse(req.params);
   const body = UpdateContractorBody.safeParse(req.body);
   if (!params.success) {

@@ -7,11 +7,11 @@ import { fileURLToPath } from "node:url";
 
 const artifactDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const tempDir = await mkdtemp(path.join(tmpdir(), "salon-payroll-tests-"));
-const outputFile = path.join(tempDir, "payroll-tax.test.mjs");
+const outputFile = path.join(tempDir, "all.test.mjs");
 
 try {
   await build({
-    entryPoints: [path.join(artifactDir, "src/lib/payroll-tax.test.ts")],
+    entryPoints: [path.join(artifactDir, "src/lib/all.test.ts")],
     bundle: true,
     platform: "node",
     format: "esm",

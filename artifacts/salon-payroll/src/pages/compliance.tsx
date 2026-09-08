@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowUpRight, CalendarClock, Check, CircleAlert, Download, ExternalLink, FileKey2, FileText, Landmark, Link2, ReceiptText, ShieldCheck, WalletCards } from 'lucide-react';
 import { Link } from 'wouter';
+import { build1099PrepRows, buildW2PrepRows, serializeCsv } from '@workspace/api-client-react/compliance-export';
 import { useGetPayrollSummary, useListContractors, useListStaff } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
 import { Field, inputClass, Modal, PageHeader, StatCard } from '@/components/common';
@@ -126,7 +127,7 @@ function readJson<T>(key: string, fallback: T): T {
 }
 
 function downloadCsv(filename: string, rows: string[][]) {
-  const csv = rows.map((row) => row.map((value) => `"${String(value ?? '').replaceAll('"', '""')}"`).join(',')).join('\n');
+  const csv = serializeCsv(rows);
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
@@ -199,19 +200,12 @@ export default function CompliancePage() {
   }
 
   function exportW2Prep() {
-    const rows = [
-      ['Employee name', 'Email', 'Work state', 'YTD wages', 'YTD FUTA wages', 'SSN (enter securely before filing)', 'Employer EIN', 'Mailing address'],
-      ...staffRows.filter((member) => member.status === 'active').map((member) => [`${member.firstName} ${member.lastName}`, member.email ?? '', member.workState, member.ytdWages.toFixed(2), member.ytdFutaWages.toFixed(2), '', '', '']),
-    ];
-    downloadCsv(`morrow-w2-prep-${new Date().getFullYear()}.csv`, rows);
+    downloadCsv(`morrow-w2-prep-${new Date().getFullYear()}.csv`, buildW2PrepRows(staffRows));
     toast({ title: 'W-2 prep file downloaded', description: 'Review and complete required identity fields before using SSA BSO.' });
   }
 
   function export1099Prep() {
-    downloadCsv(`morrow-1099-nec-prep-${new Date().getFullYear()}.csv`, [
-      ['Recipient name', 'Business name', 'Recipient email', 'TIN (enter securely before filing)', 'Nonemployee compensation', 'State', 'State tax withheld', 'Tax classification', 'W-9 status'],
-      ...contractorRows.filter((contractor) => contractor.status === 'active').map((contractor) => [`${contractor.firstName} ${contractor.lastName}`, contractor.businessName ?? '', contractor.email ?? '', '', contractor.ytdReportableCompensation.toFixed(2), contractor.workState, contractor.stateTaxWithheld.toFixed(2), contractor.taxClassification, contractor.w9Status]),
-    ]);
+    downloadCsv(`morrow-1099-nec-prep-${new Date().getFullYear()}.csv`, build1099PrepRows(contractorRows));
     toast({ title: '1099-NEC prep file downloaded', description: contractorRows.length ? 'Review the W-9 status and complete the TIN inside a secure filing channel.' : 'No contractors are tracked yet, so the export contains the required headers.' });
   }
 
