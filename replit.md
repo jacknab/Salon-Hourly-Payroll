@@ -31,7 +31,7 @@ An hourly payroll workspace for salon owners to manage staff, review hours, calc
 ## Architecture decisions
 
 - The MVP calculates gross hourly wages, configurable employee tax deductions, FICA, FUTA, estimated net pay, and employer liabilities. It does not file returns, remit taxes, move money, or replace payroll/tax advice.
-- Federal withholding uses an annualized 2026 baseline and employee-entered filing profile. State withholding supports a small transparent rule table and warns when a state is not configured.
+- Federal withholding uses an annualized 2026 baseline and employee-entered filing profile. Initial state withholding support covers Colorado, Arizona, and California through a small transparent rule table; other states produce a compliance warning instead of a false answer.
 - Time entries are calendar dates and payroll periods calculate totals from entries whose work date falls within the period.
 - Removing staff marks them inactive instead of deleting historical identity needed for payroll records.
 - Payroll calculation creates or refreshes a reviewable pay run and stores line-level snapshots of rate, hours, gross-to-net deductions, and employer costs.

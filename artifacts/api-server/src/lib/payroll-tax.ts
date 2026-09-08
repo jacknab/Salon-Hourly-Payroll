@@ -60,18 +60,12 @@ const FEDERAL_BRACKETS: Record<FilingStatus, Array<[number, number]>> = {
   ],
 };
 
-// The MVP intentionally supports only states where a transparent rate rule is
-// safe to explain. Other states produce a warning rather than a false answer.
+// The MVP intentionally starts with a small transparent state rule set.
+// Other states produce a warning rather than a false answer.
 const STATE_RULES: Record<string, { name: string; rate: number }> = {
   AZ: { name: "Arizona", rate: 0.025 },
   CO: { name: "Colorado", rate: 0.044 },
-  FL: { name: "Florida", rate: 0 },
-  NV: { name: "Nevada", rate: 0 },
-  SD: { name: "South Dakota", rate: 0 },
-  TN: { name: "Tennessee", rate: 0 },
-  TX: { name: "Texas", rate: 0 },
-  WA: { name: "Washington", rate: 0 },
-  WY: { name: "Wyoming", rate: 0 },
+  CA: { name: "California", rate: 0.093 },
 };
 
 function roundMoney(value: number): number {
