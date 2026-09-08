@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useHealthCheck } from '@workspace/api-client-react';
-import { Banknote, CalendarDays, CheckCircle2, ChevronRight, Clock3, FileCheck2, LayoutDashboard, Menu, Scissors, Users, X } from 'lucide-react';
+import { Banknote, CalendarDays, CheckCircle2, ChevronRight, Clock3, FileCheck2, LayoutDashboard, Menu, Scissors, UserRoundCog, Users, X } from 'lucide-react';
 
 const navItems = [
   { href: '/', label: 'Overview', icon: LayoutDashboard },
@@ -9,6 +9,7 @@ const navItems = [
   { href: '/time', label: 'Time entries', icon: Clock3 },
   { href: '/payroll', label: 'Payroll', icon: Banknote },
   { href: '/compliance', label: 'Compliance', icon: FileCheck2 },
+  { href: '/contractors', label: 'Contractors', icon: UserRoundCog },
 ];
 
 export function Shell({ children }: { children: ReactNode }) {

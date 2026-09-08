@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowUpRight, CalendarClock, Check, CircleAlert, Download, ExternalLink, FileText, Landmark, Link2, ReceiptText, ShieldCheck, WalletCards } from 'lucide-react';
-import { useGetPayrollSummary, useListStaff } from '@workspace/api-client-react';
+import { ArrowUpRight, CalendarClock, Check, CircleAlert, Download, ExternalLink, FileKey2, FileText, Landmark, Link2, ReceiptText, ShieldCheck, WalletCards } from 'lucide-react';
+import { Link } from 'wouter';
+import { useGetPayrollSummary, useListContractors, useListStaff } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
 import { Field, inputClass, Modal, PageHeader, StatCard } from '@/components/common';
 import { dateLabel, money } from '@/lib/format';
@@ -158,6 +159,7 @@ function ActivityModal({ item, onClose, onSave }: { item: ActionItem; onClose: (
 export default function CompliancePage() {
   const summary = useGetPayrollSummary();
   const staff = useListStaff();
+  const contractors = useListContractors();
   const [completed, setCompleted] = useState<string[]>([]);
   const [activity, setActivity] = useState<Record<string, ActivityRecord>>({});
   const [recording, setRecording] = useState<ActionItem | null>(null);
@@ -171,9 +173,11 @@ export default function CompliancePage() {
   const openItems = items.filter((item) => !completed.includes(item.id)).sort((a, b) => a.dueDate.localeCompare(b.dueDate));
   const nextItem = openItems[0];
   const staffRows = staff.data ?? [];
+  const contractorRows = contractors.data ?? [];
   const ytdWages = staffRows.reduce((total, member) => total + member.ytdWages, 0);
   const ytdFutaWages = staffRows.reduce((total, member) => total + member.ytdFutaWages, 0);
   const reviewedProfiles = staffRows.filter((member) => member.taxProfileReviewed).length;
+  const contractorCompensation = contractorRows.filter((contractor) => contractor.status === 'active').reduce((total, contractor) => total + contractor.ytdReportableCompensation, 0);
   const period = summary.data?.currentPayPeriod;
 
   function markComplete(item: ActionItem, confirmation = '') {
@@ -205,9 +209,10 @@ export default function CompliancePage() {
 
   function export1099Prep() {
     downloadCsv(`morrow-1099-nec-prep-${new Date().getFullYear()}.csv`, [
-      ['Recipient name', 'Recipient email', 'TIN (enter securely before filing)', 'Nonemployee compensation', 'State', 'State tax withheld'],
+      ['Recipient name', 'Business name', 'Recipient email', 'TIN (enter securely before filing)', 'Nonemployee compensation', 'State', 'State tax withheld', 'Tax classification', 'W-9 status'],
+      ...contractorRows.filter((contractor) => contractor.status === 'active').map((contractor) => [`${contractor.firstName} ${contractor.lastName}`, contractor.businessName ?? '', contractor.email ?? '', '', contractor.ytdReportableCompensation.toFixed(2), contractor.workState, contractor.stateTaxWithheld.toFixed(2), contractor.taxClassification, contractor.w9Status]),
     ]);
-    toast({ title: '1099-NEC template downloaded', description: 'Contractor tracking is not enabled yet, so this export starts with the required columns.' });
+    toast({ title: '1099-NEC prep file downloaded', description: contractorRows.length ? 'Review the W-9 status and complete the TIN inside a secure filing channel.' : 'No contractors are tracked yet, so the export contains the required headers.' });
   }
 
   function exportStateReport() {
@@ -226,14 +231,15 @@ export default function CompliancePage() {
         eyebrow="Compliance workspace"
         title="Keep tax work moving."
         description="A free-first command center for deadlines, deposits, agency handoffs, and reviewable payroll reports. It does not file returns or move money."
-        action={<Button variant="outline" onClick={() => window.open('https://www.irs.gov/businesses/small-businesses-self-employed/employment-tax-due-dates', '_blank', 'noopener,noreferrer')}><ExternalLink className="h-4 w-4" /> IRS calendar</Button>}
+        action={<div className="flex flex-wrap gap-2"><Link href="/contractors"><Button variant="outline"><FileKey2 className="h-4 w-4" /> Contractors</Button></Link><Button variant="outline" onClick={() => window.open('https://www.irs.gov/businesses/small-businesses-self-employed/employment-tax-due-dates', '_blank', 'noopener,noreferrer')}><ExternalLink className="h-4 w-4" /> IRS calendar</Button></div>}
       />
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard label="Open actions" value={String(openItems.length)} detail={nextItem ? `Next: ${dateLabel(nextItem.dueDate, { month: 'short', day: 'numeric' })}` : 'All caught up'} accent="coral" icon={<CalendarClock className="h-5 w-5" />} />
         <StatCard label="YTD wages" value={money(ytdWages)} detail="From staff tax profiles" accent="ink" icon={<ReceiptText className="h-5 w-5" />} />
         <StatCard label="Tax profiles" value={`${reviewedProfiles}/${staffRows.length || 0}`} detail="Reviewed employee profiles" accent="sage" icon={<ShieldCheck className="h-5 w-5" />} />
         <StatCard label="FUTA wages" value={money(ytdFutaWages)} detail="Available for Form 940 review" accent="gold" icon={<WalletCards className="h-5 w-5" />} />
+        <StatCard label="1099 compensation" value={money(contractorCompensation)} detail={`${contractorRows.filter((contractor) => contractor.status === 'active').length} active contractors`} accent="coral" icon={<FileKey2 className="h-5 w-5" />} />
       </section>
 
       <section className="mt-7 grid gap-5 xl:grid-cols-[1.15fr_.85fr]">
@@ -278,7 +284,7 @@ export default function CompliancePage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Reports & prep files</p><h2 className="mt-2 font-display text-2xl font-bold tracking-[-0.04em]">Export what agencies need</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">These are prep files, not filed returns. Never add SSNs or EINs to an ordinary downloaded file unless you have a secure handling process.</p></div><span className="inline-flex w-fit items-center gap-2 rounded-full bg-[hsl(39_75%_59%/0.17)] px-3 py-1.5 text-xs font-bold text-[hsl(34_67%_35%)]"><CircleAlert className="h-3.5 w-3.5" /> Review before submitting</span></div>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <div className="rounded-xl border hairline bg-background p-5"><FileText className="h-5 w-5 text-accent" /><h3 className="mt-4 text-sm font-bold">W-2 prep file</h3><p className="mt-2 min-h-[60px] text-sm leading-5 text-muted-foreground">Payroll totals and employee fields formatted for a review pass before SSA BSO.</p><Button className="mt-5 w-full" variant="outline" onClick={exportW2Prep}><Download className="h-4 w-4" /> Download CSV</Button></div>
-          <div className="rounded-xl border hairline bg-background p-5"><ReceiptText className="h-5 w-5 text-accent" /><h3 className="mt-4 text-sm font-bold">1099-NEC template</h3><p className="mt-2 min-h-[60px] text-sm leading-5 text-muted-foreground">A blank IRIS-oriented template until contractor tracking is added to the workspace.</p><Button className="mt-5 w-full" variant="outline" onClick={export1099Prep}><Download className="h-4 w-4" /> Download CSV</Button></div>
+          <div className="rounded-xl border hairline bg-background p-5"><ReceiptText className="h-5 w-5 text-accent" /><h3 className="mt-4 text-sm font-bold">1099-NEC prep file</h3><p className="mt-2 min-h-[60px] text-sm leading-5 text-muted-foreground">{contractorRows.length ? 'Export active contractor amounts with W-9 readiness for secure review.' : 'Add contractors to turn the IRIS-oriented template into a real year-end report.'}</p><Button className="mt-5 w-full" variant="outline" onClick={export1099Prep}><Download className="h-4 w-4" /> Download CSV</Button></div>
           <div className="rounded-xl border hairline bg-background p-5"><Landmark className="h-5 w-5 text-accent" /><h3 className="mt-4 text-sm font-bold">State withholding report</h3><p className="mt-2 min-h-[60px] text-sm leading-5 text-muted-foreground">Group YTD wages by work state for a state portal or filing provider.</p><Button className="mt-5 w-full" variant="outline" onClick={exportStateReport}><Download className="h-4 w-4" /> Download CSV</Button></div>
         </div>
         <div className="mt-5 flex flex-col gap-3 rounded-xl bg-secondary/70 p-4 text-sm sm:flex-row sm:items-center sm:justify-between"><span className="text-muted-foreground">{period ? <>Current payroll period: <strong className="text-foreground">{dateLabel(period.startDate)} – {dateLabel(period.endDate)}</strong></> : 'No current pay period is available yet.'}</span><a href="https://www.taxbandits.com/payroll-tax-api/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-bold text-primary hover:text-accent">Explore automated provider option <Link2 className="h-4 w-4" /></a></div>

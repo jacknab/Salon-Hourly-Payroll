@@ -151,6 +151,154 @@ export interface StaffUpdate {
   taxProfileReviewed?: boolean;
 }
 
+export type ContractorStatus = typeof ContractorStatus[keyof typeof ContractorStatus];
+
+
+export const ContractorStatus = {
+  active: 'active',
+  inactive: 'inactive',
+} as const;
+
+export type ContractorTaxClassification = typeof ContractorTaxClassification[keyof typeof ContractorTaxClassification];
+
+
+export const ContractorTaxClassification = {
+  individual: 'individual',
+  corporation: 'corporation',
+  partnership: 'partnership',
+} as const;
+
+export type ContractorW9Status = typeof ContractorW9Status[keyof typeof ContractorW9Status];
+
+
+export const ContractorW9Status = {
+  missing: 'missing',
+  on_file: 'on_file',
+} as const;
+
+export interface Contractor {
+  id: number;
+  firstName: string;
+  lastName: string;
+  /** @nullable */
+  businessName?: string | null;
+  /** @nullable */
+  email?: string | null;
+  /**
+     * @minLength 2
+     * @maxLength 2
+     */
+  workState: string;
+  status: ContractorStatus;
+  taxClassification: ContractorTaxClassification;
+  w9Status: ContractorW9Status;
+  /** @minimum 2000 */
+  taxYear: number;
+  /** @minimum 0 */
+  ytdReportableCompensation: number;
+  /** @minimum 0 */
+  stateTaxWithheld: number;
+  taxProfileReviewed: boolean;
+}
+
+export type ContractorInputStatus = typeof ContractorInputStatus[keyof typeof ContractorInputStatus];
+
+
+export const ContractorInputStatus = {
+  active: 'active',
+  inactive: 'inactive',
+} as const;
+
+export type ContractorInputTaxClassification = typeof ContractorInputTaxClassification[keyof typeof ContractorInputTaxClassification];
+
+
+export const ContractorInputTaxClassification = {
+  individual: 'individual',
+  corporation: 'corporation',
+  partnership: 'partnership',
+} as const;
+
+export type ContractorInputW9Status = typeof ContractorInputW9Status[keyof typeof ContractorInputW9Status];
+
+
+export const ContractorInputW9Status = {
+  missing: 'missing',
+  on_file: 'on_file',
+} as const;
+
+export interface ContractorInput {
+  /** @minLength 1 */
+  firstName: string;
+  /** @minLength 1 */
+  lastName: string;
+  businessName?: string;
+  email?: string;
+  /**
+     * @minLength 2
+     * @maxLength 2
+     */
+  workState?: string;
+  status?: ContractorInputStatus;
+  taxClassification?: ContractorInputTaxClassification;
+  w9Status?: ContractorInputW9Status;
+  /** @minimum 2000 */
+  taxYear: number;
+  /** @minimum 0 */
+  ytdReportableCompensation?: number;
+  /** @minimum 0 */
+  stateTaxWithheld?: number;
+  taxProfileReviewed?: boolean;
+}
+
+export type ContractorUpdateStatus = typeof ContractorUpdateStatus[keyof typeof ContractorUpdateStatus];
+
+
+export const ContractorUpdateStatus = {
+  active: 'active',
+  inactive: 'inactive',
+} as const;
+
+export type ContractorUpdateTaxClassification = typeof ContractorUpdateTaxClassification[keyof typeof ContractorUpdateTaxClassification];
+
+
+export const ContractorUpdateTaxClassification = {
+  individual: 'individual',
+  corporation: 'corporation',
+  partnership: 'partnership',
+} as const;
+
+export type ContractorUpdateW9Status = typeof ContractorUpdateW9Status[keyof typeof ContractorUpdateW9Status];
+
+
+export const ContractorUpdateW9Status = {
+  missing: 'missing',
+  on_file: 'on_file',
+} as const;
+
+export interface ContractorUpdate {
+  /** @minLength 1 */
+  firstName?: string;
+  /** @minLength 1 */
+  lastName?: string;
+  businessName?: string;
+  email?: string;
+  /**
+     * @minLength 2
+     * @maxLength 2
+     */
+  workState?: string;
+  status?: ContractorUpdateStatus;
+  taxClassification?: ContractorUpdateTaxClassification;
+  w9Status?: ContractorUpdateW9Status;
+  /** @minimum 2000 */
+  taxYear?: number;
+  /** @minimum 0 */
+  ytdReportableCompensation?: number;
+  /** @minimum 0 */
+  stateTaxWithheld?: number;
+  taxProfileReviewed?: boolean;
+}
+
 export interface TimeEntry {
   id: number;
   staffId: number;

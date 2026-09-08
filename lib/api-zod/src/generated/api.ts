@@ -271,6 +271,176 @@ export const DeleteStaffResponse = zod.void()
 
 
 /**
+ * @summary List contractors
+ */
+export const listContractorsResponseWorkStateMin = 2;
+export const listContractorsResponseWorkStateMax = 2;
+
+export const listContractorsResponseTaxYearMin = 2000;
+
+export const listContractorsResponseYtdReportableCompensationMin = 0;
+
+export const listContractorsResponseStateTaxWithheldMin = 0;
+
+
+
+export const ListContractorsResponseItem = zod.object({
+  "id": zod.number().int(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "businessName": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "workState": zod.string().min(listContractorsResponseWorkStateMin).max(listContractorsResponseWorkStateMax),
+  "status": zod.enum(['active', 'inactive']),
+  "taxClassification": zod.enum(['individual', 'corporation', 'partnership']),
+  "w9Status": zod.enum(['missing', 'on_file']),
+  "taxYear": zod.number().int().min(listContractorsResponseTaxYearMin),
+  "ytdReportableCompensation": zod.number().min(listContractorsResponseYtdReportableCompensationMin),
+  "stateTaxWithheld": zod.number().min(listContractorsResponseStateTaxWithheldMin),
+  "taxProfileReviewed": zod.boolean()
+})
+export const ListContractorsResponse = zod.array(ListContractorsResponseItem)
+
+
+/**
+ * @summary Add a contractor
+ */
+
+
+export const createContractorBodyWorkStateDefault = `CO`;
+export const createContractorBodyWorkStateMin = 2;
+export const createContractorBodyWorkStateMax = 2;
+
+export const createContractorBodyStatusDefault = `active`;
+export const createContractorBodyTaxClassificationDefault = `individual`;
+export const createContractorBodyW9StatusDefault = `missing`;
+export const createContractorBodyTaxYearMin = 2000;
+
+export const createContractorBodyYtdReportableCompensationDefault = 0;
+export const createContractorBodyYtdReportableCompensationMin = 0;
+
+export const createContractorBodyStateTaxWithheldDefault = 0;
+export const createContractorBodyStateTaxWithheldMin = 0;
+
+export const createContractorBodyTaxProfileReviewedDefault = false;
+
+export const CreateContractorBody = zod.object({
+  "firstName": zod.string().min(1),
+  "lastName": zod.string().min(1),
+  "businessName": zod.string().optional(),
+  "email": zod.string().optional(),
+  "workState": zod.string().min(createContractorBodyWorkStateMin).max(createContractorBodyWorkStateMax).default(createContractorBodyWorkStateDefault),
+  "status": zod.enum(['active', 'inactive']).default(createContractorBodyStatusDefault),
+  "taxClassification": zod.enum(['individual', 'corporation', 'partnership']).default(createContractorBodyTaxClassificationDefault),
+  "w9Status": zod.enum(['missing', 'on_file']).default(createContractorBodyW9StatusDefault),
+  "taxYear": zod.number().int().min(createContractorBodyTaxYearMin),
+  "ytdReportableCompensation": zod.number().min(createContractorBodyYtdReportableCompensationMin).default(createContractorBodyYtdReportableCompensationDefault),
+  "stateTaxWithheld": zod.number().min(createContractorBodyStateTaxWithheldMin).default(createContractorBodyStateTaxWithheldDefault),
+  "taxProfileReviewed": zod.boolean().default(createContractorBodyTaxProfileReviewedDefault)
+})
+
+export const createContractorResponseWorkStateMin = 2;
+export const createContractorResponseWorkStateMax = 2;
+
+export const createContractorResponseTaxYearMin = 2000;
+
+export const createContractorResponseYtdReportableCompensationMin = 0;
+
+export const createContractorResponseStateTaxWithheldMin = 0;
+
+
+
+export const CreateContractorResponse = zod.object({
+  "id": zod.number().int(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "businessName": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "workState": zod.string().min(createContractorResponseWorkStateMin).max(createContractorResponseWorkStateMax),
+  "status": zod.enum(['active', 'inactive']),
+  "taxClassification": zod.enum(['individual', 'corporation', 'partnership']),
+  "w9Status": zod.enum(['missing', 'on_file']),
+  "taxYear": zod.number().int().min(createContractorResponseTaxYearMin),
+  "ytdReportableCompensation": zod.number().min(createContractorResponseYtdReportableCompensationMin),
+  "stateTaxWithheld": zod.number().min(createContractorResponseStateTaxWithheldMin),
+  "taxProfileReviewed": zod.boolean()
+})
+
+
+/**
+ * @summary Update a contractor
+ */
+export const UpdateContractorParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+
+
+export const updateContractorBodyWorkStateMin = 2;
+export const updateContractorBodyWorkStateMax = 2;
+
+export const updateContractorBodyTaxYearMin = 2000;
+
+export const updateContractorBodyYtdReportableCompensationMin = 0;
+
+export const updateContractorBodyStateTaxWithheldMin = 0;
+
+
+
+export const UpdateContractorBody = zod.object({
+  "firstName": zod.string().min(1).optional(),
+  "lastName": zod.string().min(1).optional(),
+  "businessName": zod.string().optional(),
+  "email": zod.string().optional(),
+  "workState": zod.string().min(updateContractorBodyWorkStateMin).max(updateContractorBodyWorkStateMax).optional(),
+  "status": zod.enum(['active', 'inactive']).optional(),
+  "taxClassification": zod.enum(['individual', 'corporation', 'partnership']).optional(),
+  "w9Status": zod.enum(['missing', 'on_file']).optional(),
+  "taxYear": zod.number().int().min(updateContractorBodyTaxYearMin).optional(),
+  "ytdReportableCompensation": zod.number().min(updateContractorBodyYtdReportableCompensationMin).optional(),
+  "stateTaxWithheld": zod.number().min(updateContractorBodyStateTaxWithheldMin).optional(),
+  "taxProfileReviewed": zod.boolean().optional()
+})
+
+export const updateContractorResponseWorkStateMin = 2;
+export const updateContractorResponseWorkStateMax = 2;
+
+export const updateContractorResponseTaxYearMin = 2000;
+
+export const updateContractorResponseYtdReportableCompensationMin = 0;
+
+export const updateContractorResponseStateTaxWithheldMin = 0;
+
+
+
+export const UpdateContractorResponse = zod.object({
+  "id": zod.number().int(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "businessName": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "workState": zod.string().min(updateContractorResponseWorkStateMin).max(updateContractorResponseWorkStateMax),
+  "status": zod.enum(['active', 'inactive']),
+  "taxClassification": zod.enum(['individual', 'corporation', 'partnership']),
+  "w9Status": zod.enum(['missing', 'on_file']),
+  "taxYear": zod.number().int().min(updateContractorResponseTaxYearMin),
+  "ytdReportableCompensation": zod.number().min(updateContractorResponseYtdReportableCompensationMin),
+  "stateTaxWithheld": zod.number().min(updateContractorResponseStateTaxWithheldMin),
+  "taxProfileReviewed": zod.boolean()
+})
+
+
+/**
+ * @summary Archive a contractor
+ */
+export const DeleteContractorParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const DeleteContractorResponse = zod.void()
+
+
+/**
  * @summary List time entries
  */
 export const listTimeEntriesQueryLimitDefault = 50;

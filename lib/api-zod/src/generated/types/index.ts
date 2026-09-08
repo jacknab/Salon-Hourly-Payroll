@@ -6,6 +6,18 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './contractor';
+export * from './contractorInput';
+export * from './contractorInputStatus';
+export * from './contractorInputTaxClassification';
+export * from './contractorInputW9Status';
+export * from './contractorStatus';
+export * from './contractorTaxClassification';
+export * from './contractorUpdate';
+export * from './contractorUpdateStatus';
+export * from './contractorUpdateTaxClassification';
+export * from './contractorUpdateW9Status';
+export * from './contractorW9Status';
 export * from './healthStatus';
 export * from './listTimeEntriesParams';
 export * from './payPeriod';

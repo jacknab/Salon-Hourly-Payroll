@@ -96,6 +96,64 @@ paths:
       responses:
         "204":
           description: Staff member removed
+  /contractors:
+    get:
+      operationId: listContractors
+      tags: [payroll]
+      summary: List contractors
+      responses:
+        "200":
+          description: Contractors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Contractor"
+    post:
+      operationId: createContractor
+      tags: [payroll]
+      summary: Add a contractor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContractorInput"
+      responses:
+        "201":
+          description: Contractor created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contractor"
+  /contractors/{id}:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    patch:
+      operationId: updateContractor
+      tags: [payroll]
+      summary: Update a contractor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContractorUpdate"
+      responses:
+        "200":
+          description: Contractor updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contractor"
+    delete:
+      operationId: deleteContractor
+      tags: [payroll]
+      summary: Archive a contractor
+      responses:
+        "204":
+          description: Contractor archived
   /time-entries:
     get:
       operationId: listTimeEntries
@@ -411,6 +469,132 @@ components:
           minimum: 0
         ytdFutaWages:
           type: number
+          minimum: 0
+        taxProfileReviewed:
+          type: boolean
+    Contractor:
+      type: object
+      required: [id, firstName, lastName, workState, status, taxClassification, w9Status, taxYear, ytdReportableCompensation, stateTaxWithheld, taxProfileReviewed]
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        businessName:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        workState:
+          type: string
+          minLength: 2
+          maxLength: 2
+        status:
+          type: string
+          enum: [active, inactive]
+        taxClassification:
+          type: string
+          enum: [individual, corporation, partnership]
+        w9Status:
+          type: string
+          enum: [missing, on_file]
+        taxYear:
+          type: integer
+          minimum: 2000
+        ytdReportableCompensation:
+          type: number
+          format: double
+          minimum: 0
+        stateTaxWithheld:
+          type: number
+          format: double
+          minimum: 0
+        taxProfileReviewed:
+          type: boolean
+    ContractorInput:
+      type: object
+      required: [firstName, lastName, taxYear]
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+        lastName:
+          type: string
+          minLength: 1
+        businessName:
+          type: string
+        email:
+          type: string
+        workState:
+          type: string
+          minLength: 2
+          maxLength: 2
+          default: CO
+        status:
+          type: string
+          enum: [active, inactive]
+          default: active
+        taxClassification:
+          type: string
+          enum: [individual, corporation, partnership]
+          default: individual
+        w9Status:
+          type: string
+          enum: [missing, on_file]
+          default: missing
+        taxYear:
+          type: integer
+          minimum: 2000
+        ytdReportableCompensation:
+          type: number
+          format: double
+          minimum: 0
+          default: 0
+        stateTaxWithheld:
+          type: number
+          format: double
+          minimum: 0
+          default: 0
+        taxProfileReviewed:
+          type: boolean
+          default: false
+    ContractorUpdate:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+        lastName:
+          type: string
+          minLength: 1
+        businessName:
+          type: string
+        email:
+          type: string
+        workState:
+          type: string
+          minLength: 2
+          maxLength: 2
+        status:
+          type: string
+          enum: [active, inactive]
+        taxClassification:
+          type: string
+          enum: [individual, corporation, partnership]
+        w9Status:
+          type: string
+          enum: [missing, on_file]
+        taxYear:
+          type: integer
+          minimum: 2000
+        ytdReportableCompensation:
+          type: number
+          format: double
+          minimum: 0
+        stateTaxWithheld:
+          type: number
+          format: double
           minimum: 0
         taxProfileReviewed:
           type: boolean

@@ -9,6 +9,7 @@ import StaffPage from '@/pages/staff';
 import TimePage from '@/pages/time';
 import PayrollPage from '@/pages/payroll';
 import CompliancePage from '@/pages/compliance';
+import ContractorsPage from '@/pages/contractors';
 import { Shell } from '@/components/shell';
 import {
   Route,
@@ -31,6 +32,7 @@ function Router() {
           <Route path="/time" component={TimePage} />
           <Route path="/payroll" component={PayrollPage} />
           <Route path="/compliance" component={CompliancePage} />
+          <Route path="/contractors" component={ContractorsPage} />
           <Route component={NotFound} />
         </Switch>
       </Shell>

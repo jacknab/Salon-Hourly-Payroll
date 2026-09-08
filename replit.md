@@ -25,6 +25,7 @@ An hourly payroll workspace for salon owners to manage staff, review hours, calc
 - `lib/api-spec/openapi.yaml` — source of truth for the payroll API contract
 - `lib/db/src/schema/` — Drizzle schema for staff, time entries, pay periods, pay runs, and payroll lines
 - `artifacts/api-server/src/routes/payroll.ts` — payroll API handlers and gross-pay calculation
+- `artifacts/api-server/src/routes/compliance.ts` — contractor records and year-end tax data API handlers
 - `artifacts/salon-payroll/src/` — React dashboard, staff, time entry, and payroll review screens
 - `artifacts/salon-payroll/src/index.css` — shared visual theme and design tokens
 
@@ -35,6 +36,7 @@ An hourly payroll workspace for salon owners to manage staff, review hours, calc
 - Time entries are calendar dates and payroll periods calculate totals from entries whose work date falls within the period.
 - Removing staff marks them inactive instead of deleting historical identity needed for payroll records.
 - Payroll calculation creates or refreshes a reviewable pay run and stores line-level snapshots of rate, hours, gross-to-net deductions, and employer costs.
+- Contractor records intentionally store W-9 status and reportable compensation, but never store TINs or SSNs. Those identifiers belong only in a secure filing-provider or official agency portal.
 
 ## Product
 
@@ -43,6 +45,7 @@ An hourly payroll workspace for salon owners to manage staff, review hours, calc
 - Time-entry management with staff, date, hours, notes, search, and deletion
 - Pay-period creation, calculation, pay-run review, pay-stub calculations, employer liability summary, and print/export-ready detail
 - Compliance workspace with free-first deadline tracking, EFTPS/SSA BSO/IRS IRIS links, local activity records, and W-2/1099/state report prep CSV exports. It intentionally does not file returns, remit taxes, or store SSNs/EINs.
+- Contractor workspace with server-backed 1099-NEC records, W-9 readiness, tax-year compensation, state withholding, archive status, and secure-by-default handling guidance.
 
 ## User preferences
 
