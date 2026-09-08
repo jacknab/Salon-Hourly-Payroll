@@ -42,6 +42,7 @@ An hourly payroll workspace for salon owners to manage staff, review hours, calc
 - Staff management with hourly rate, active/inactive status, and employee tax profile
 - Time-entry management with staff, date, hours, notes, search, and deletion
 - Pay-period creation, calculation, pay-run review, pay-stub calculations, employer liability summary, and print/export-ready detail
+- Compliance workspace with free-first deadline tracking, EFTPS/SSA BSO/IRS IRIS links, local activity records, and W-2/1099/state report prep CSV exports. It intentionally does not file returns, remit taxes, or store SSNs/EINs.
 
 ## User preferences
 
