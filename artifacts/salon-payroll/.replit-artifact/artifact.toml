@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Salon Payroll"
+description = "A focused payroll workspace for salons to manage hourly staff, review time entries, calculate gross wages, and prepare payroll runs without benefits or time-off complexity."
+version = "1.0.0"
+id = "artifacts/salon-payroll"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24854
+
+[services.development]
+run = "pnpm --filter @workspace/salon-payroll run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/salon-payroll", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/salon-payroll/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24854"
+BASE_PATH = "/"

@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: payroll
+    description: Salon hourly payroll operations
 paths:
   /healthz:
     get:
@@ -24,7 +26,215 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /payroll/summary:
+    get:
+      operationId: getPayrollSummary
+      tags: [payroll]
+      summary: Get payroll dashboard summary
+      responses:
+        "200":
+          description: Payroll dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayrollSummary"
+  /staff:
+    get:
+      operationId: listStaff
+      tags: [payroll]
+      summary: List salon staff
+      responses:
+        "200":
+          description: Staff members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Staff"
+    post:
+      operationId: createStaff
+      tags: [payroll]
+      summary: Add a staff member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffInput"
+      responses:
+        "201":
+          description: Staff member created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Staff"
+  /staff/{id}:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    patch:
+      operationId: updateStaff
+      tags: [payroll]
+      summary: Update a staff member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffUpdate"
+      responses:
+        "200":
+          description: Staff member updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Staff"
+    delete:
+      operationId: deleteStaff
+      tags: [payroll]
+      summary: Remove a staff member
+      responses:
+        "204":
+          description: Staff member removed
+  /time-entries:
+    get:
+      operationId: listTimeEntries
+      tags: [payroll]
+      summary: List time entries
+      parameters:
+        - name: payPeriodId
+          in: query
+          required: false
+          schema:
+            type: ["integer", "null"]
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        "200":
+          description: Time entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimeEntry"
+    post:
+      operationId: createTimeEntry
+      tags: [payroll]
+      summary: Add a time entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TimeEntryInput"
+      responses:
+        "201":
+          description: Time entry created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeEntry"
+  /time-entries/{id}:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    patch:
+      operationId: updateTimeEntry
+      tags: [payroll]
+      summary: Update a time entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TimeEntryUpdate"
+      responses:
+        "200":
+          description: Time entry updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeEntry"
+    delete:
+      operationId: deleteTimeEntry
+      tags: [payroll]
+      summary: Delete a time entry
+      responses:
+        "204":
+          description: Time entry deleted
+  /pay-periods:
+    get:
+      operationId: listPayPeriods
+      tags: [payroll]
+      summary: List pay periods
+      responses:
+        "200":
+          description: Pay periods
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PayPeriod"
+    post:
+      operationId: createPayPeriod
+      tags: [payroll]
+      summary: Create a pay period
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PayPeriodInput"
+      responses:
+        "201":
+          description: Pay period created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayPeriod"
+  /pay-periods/{id}/calculate:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    post:
+      operationId: calculatePayPeriod
+      tags: [payroll]
+      summary: Calculate a pay period
+      responses:
+        "200":
+          description: Calculated pay run
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayRun"
+  /pay-runs/{id}:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    get:
+      operationId: getPayRun
+      tags: [payroll]
+      summary: Get a payroll run
+      responses:
+        "200":
+          description: Payroll run
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayRun"
 components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
   schemas:
     HealthStatus:
       type: object
@@ -33,4 +243,242 @@ components:
           type: string
       required:
         - status
+    Staff:
+      type: object
+      required: [id, firstName, lastName, role, hourlyRate, status]
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+        email:
+          type: ["string", "null"]
+        hourlyRate:
+          type: number
+          format: double
+        status:
+          type: string
+          enum: [active, inactive]
+    StaffInput:
+      type: object
+      required: [firstName, lastName, role, hourlyRate]
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+        lastName:
+          type: string
+          minLength: 1
+        role:
+          type: string
+          minLength: 1
+        email:
+          type: string
+        hourlyRate:
+          type: number
+          format: double
+          minimum: 0
+        status:
+          type: string
+          enum: [active, inactive]
+          default: active
+    StaffUpdate:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+        lastName:
+          type: string
+          minLength: 1
+        role:
+          type: string
+          minLength: 1
+        email:
+          type: string
+        hourlyRate:
+          type: number
+          format: double
+          minimum: 0
+        status:
+          type: string
+          enum: [active, inactive]
+    TimeEntry:
+      type: object
+      required: [id, staffId, staffName, workDate, hours]
+      properties:
+        id:
+          type: integer
+        staffId:
+          type: integer
+        staffName:
+          type: string
+        workDate:
+          type: string
+          format: date
+        hours:
+          type: number
+          format: double
+        note:
+          type: ["string", "null"]
+    TimeEntryInput:
+      type: object
+      required: [staffId, workDate, hours]
+      properties:
+        staffId:
+          type: integer
+        workDate:
+          type: string
+          format: date
+        hours:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 24
+        note:
+          type: string
+    TimeEntryUpdate:
+      type: object
+      properties:
+        staffId:
+          type: integer
+        workDate:
+          type: string
+          format: date
+        hours:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 24
+        note:
+          type: string
+    PayPeriod:
+      type: object
+      required: [id, startDate, endDate, payDate, status, totalHours, grossPay, staffCount]
+      properties:
+        id:
+          type: integer
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        payDate:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [open, ready, paid]
+        totalHours:
+          type: number
+          format: double
+        grossPay:
+          type: number
+          format: double
+        staffCount:
+          type: integer
+    PayPeriodInput:
+      type: object
+      required: [startDate, endDate, payDate]
+      properties:
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        payDate:
+          type: string
+          format: date
+    PayrollLine:
+      type: object
+      required: [staffId, staffName, role, hours, hourlyRate, grossPay]
+      properties:
+        staffId:
+          type: integer
+        staffName:
+          type: string
+        role:
+          type: string
+        hours:
+          type: number
+          format: double
+        hourlyRate:
+          type: number
+          format: double
+        grossPay:
+          type: number
+          format: double
+    PayRun:
+      type: object
+      required: [id, payPeriodId, status, createdAt, totalHours, grossPay, lines]
+      properties:
+        id:
+          type: integer
+        payPeriodId:
+          type: integer
+        status:
+          type: string
+          enum: [draft, ready, paid]
+        createdAt:
+          type: string
+          format: date-time
+        finalizedAt:
+          type: ["string", "null"]
+          format: date-time
+        totalHours:
+          type: number
+          format: double
+        grossPay:
+          type: number
+          format: double
+        lines:
+          type: array
+          items:
+            $ref: "#/components/schemas/PayrollLine"
+    RecentTimeEntry:
+      type: object
+      required: [id, staffName, workDate, hours]
+      properties:
+        id:
+          type: integer
+        staffName:
+          type: string
+        workDate:
+          type: string
+          format: date
+        hours:
+          type: number
+          format: double
+    PayrollSummary:
+      type: object
+      required: [activeStaff, pendingHours, currentGrossPay, nextPayDate, lastPayrollDate, recentEntries, currentPayPeriod]
+      properties:
+        activeStaff:
+          type: integer
+        pendingHours:
+          type: number
+          format: double
+        currentGrossPay:
+          type: number
+          format: double
+        nextPayDate:
+          type: ["string", "null"]
+          format: date
+        lastPayrollDate:
+          type: ["string", "null"]
+          format: date
+        recentEntries:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecentTimeEntry"
+        currentPayPeriod:
+          allOf:
+            - $ref: "#/components/schemas/PayPeriod"
+          nullable: true
 
