@@ -1,5 +1,5 @@
 import { createInsertSchema } from "drizzle-zod";
-import { integer, numeric, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { integer, jsonb, numeric, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { z } from "zod/v4";
 
 export const payRunsTable = pgTable("pay_runs", {
@@ -8,6 +8,7 @@ export const payRunsTable = pgTable("pay_runs", {
   status: text("status").notNull().default("draft"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   finalizedAt: timestamp("finalized_at", { withTimezone: true }),
+  complianceWarnings: jsonb("compliance_warnings").$type<string[]>().notNull().default([]),
   totalHours: numeric("total_hours", { precision: 10, scale: 2, mode: "number" }).notNull(),
   grossPay: numeric("gross_pay", { precision: 12, scale: 2, mode: "number" }).notNull(),
   federalWithholding: numeric("federal_withholding", { precision: 12, scale: 2, mode: "number" }).notNull().default(0),

@@ -189,6 +189,7 @@ export type PayPeriodStatus = typeof PayPeriodStatus[keyof typeof PayPeriodStatu
 export const PayPeriodStatus = {
   open: 'open',
   ready: 'ready',
+  finalized: 'finalized',
   paid: 'paid',
 } as const;
 
@@ -198,6 +199,8 @@ export interface PayPeriod {
   endDate: string;
   payDate: string;
   status: PayPeriodStatus;
+  /** @nullable */
+  payRunId: number | null;
   totalHours: number;
   grossPay: number;
   staffCount: number;
@@ -235,6 +238,7 @@ export type PayRunStatus = typeof PayRunStatus[keyof typeof PayRunStatus];
 export const PayRunStatus = {
   draft: 'draft',
   ready: 'ready',
+  finalized: 'finalized',
   paid: 'paid',
 } as const;
 
@@ -244,7 +248,7 @@ export interface PayRun {
   status: PayRunStatus;
   createdAt: string;
   /** @nullable */
-  finalizedAt?: string | null;
+  finalizedAt: string | null;
   totalHours: number;
   grossPay: number;
   federalWithholding: number;

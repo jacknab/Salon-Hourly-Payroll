@@ -13,6 +13,8 @@ export interface PayPeriod {
   endDate: Date;
   payDate: Date;
   status: PayPeriodStatus;
+  /** @nullable */
+  payRunId: number | null;
   totalHours: number;
   grossPay: number;
   staffCount: number;

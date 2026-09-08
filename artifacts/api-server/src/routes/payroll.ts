@@ -13,6 +13,8 @@ import {
   ListTimeEntriesResponse,
   CalculatePayPeriodParams,
   CalculatePayPeriodResponse,
+  FinalizePayRunParams,
+  FinalizePayRunResponse,
   UpdateStaffBody,
   UpdateStaffParams,
   UpdateStaffResponse,
@@ -42,6 +44,26 @@ const router: IRouter = Router();
 type StaffRow = typeof staffTable.$inferSelect;
 type TimeEntryRow = typeof timeEntriesTable.$inferSelect;
 type PayPeriodRow = typeof payPeriodsTable.$inferSelect;
+type PayRunRow = typeof payRunsTable.$inferSelect;
+type PayrollLineValue = {
+  staffId: number;
+  staffName: string;
+  role: string;
+  hours: number;
+  hourlyRate: number;
+  grossPay: number;
+  federalWithholding: number;
+  stateWithholding: number;
+  socialSecurity: number;
+  medicare: number;
+  employeeTaxes: number;
+  netPay: number;
+  employerSocialSecurity: number;
+  employerMedicare: number;
+  futa: number;
+  employerTaxes: number;
+  totalCost: number;
+};
 
 function roundMoney(value: number): number {
   return Math.round(value * 100) / 100;
@@ -120,7 +142,10 @@ async function getPeriodTotals(period: PayPeriodRow) {
 }
 
 async function toPayPeriodResponse(period: PayPeriodRow) {
-  const totals = await getPeriodTotals(period);
+  const [totals, [payRun]] = await Promise.all([
+    getPeriodTotals(period),
+    db.select({ id: payRunsTable.id }).from(payRunsTable).where(eq(payRunsTable.payPeriodId, period.id)),
+  ]);
   const entries = await db
     .select({ staffId: timeEntriesTable.staffId })
     .from(timeEntriesTable)
@@ -131,6 +156,7 @@ async function toPayPeriodResponse(period: PayPeriodRow) {
     endDate: period.endDate,
     payDate: period.payDate,
     status: period.status,
+    payRunId: payRun?.id ?? null,
     totalHours: roundMoney(totals.totalHours),
     grossPay: roundMoney(totals.grossPay),
     staffCount: new Set(entries.map((entry) => entry.staffId)).size,
@@ -458,6 +484,47 @@ async function buildPayRun(period: PayPeriodRow) {
   };
 }
 
+function toPayRunResponse(run: PayRunRow, lines: PayrollLineValue[], complianceWarnings: string[]) {
+  return {
+    ...run,
+    createdAt: run.createdAt.toISOString(),
+    finalizedAt: run.finalizedAt?.toISOString() ?? null,
+    totalHours: Number(run.totalHours),
+    grossPay: Number(run.grossPay),
+    federalWithholding: Number(run.federalWithholding),
+    stateWithholding: Number(run.stateWithholding),
+    socialSecurity: Number(run.socialSecurity),
+    medicare: Number(run.medicare),
+    employeeTaxes: Number(run.employeeTaxes),
+    netPay: Number(run.netPay),
+    employerSocialSecurity: Number(run.employerSocialSecurity),
+    employerMedicare: Number(run.employerMedicare),
+    futa: Number(run.futa),
+    employerTaxes: Number(run.employerTaxes),
+    totalCost: Number(run.totalCost),
+    complianceWarnings,
+    lines: lines.map((line) => ({
+      staffId: line.staffId,
+      staffName: line.staffName,
+      role: line.role,
+      hours: Number(line.hours),
+      hourlyRate: Number(line.hourlyRate),
+      grossPay: Number(line.grossPay),
+      federalWithholding: Number(line.federalWithholding),
+      stateWithholding: Number(line.stateWithholding),
+      socialSecurity: Number(line.socialSecurity),
+      medicare: Number(line.medicare),
+      employeeTaxes: Number(line.employeeTaxes),
+      netPay: Number(line.netPay),
+      employerSocialSecurity: Number(line.employerSocialSecurity),
+      employerMedicare: Number(line.employerMedicare),
+      futa: Number(line.futa),
+      employerTaxes: Number(line.employerTaxes),
+      totalCost: Number(line.totalCost),
+    })),
+  };
+}
+
 router.post("/pay-periods/:id/calculate", async (req, res): Promise<void> => {
   const params = CalculatePayPeriodParams.safeParse(req.params);
   if (!params.success) {
@@ -469,8 +536,12 @@ router.post("/pay-periods/:id/calculate", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Pay period not found" });
     return;
   }
-  const calculated = await buildPayRun(period);
   const [existing] = await db.select().from(payRunsTable).where(eq(payRunsTable.payPeriodId, period.id));
+  if (existing?.status === "finalized" || existing?.status === "paid") {
+    res.status(409).json({ error: "Finalized payroll runs are locked; create an adjustment run instead of recalculating them." });
+    return;
+  }
+  const calculated = await buildPayRun(period);
   const run = existing
     ? (
         await db
@@ -489,6 +560,7 @@ router.post("/pay-periods/:id/calculate", async (req, res): Promise<void> => {
         futa: calculated.futa,
         employerTaxes: calculated.employerTaxes,
         totalCost: calculated.totalCost,
+         complianceWarnings: calculated.complianceWarnings,
         status: "ready",
       })
           .where(eq(payRunsTable.id, existing.id))
@@ -513,6 +585,7 @@ router.post("/pay-periods/:id/calculate", async (req, res): Promise<void> => {
             futa: calculated.futa,
             employerTaxes: calculated.employerTaxes,
             totalCost: calculated.totalCost,
+            complianceWarnings: calculated.complianceWarnings,
           })
           .returning()
       )[0];
@@ -522,24 +595,45 @@ router.post("/pay-periods/:id/calculate", async (req, res): Promise<void> => {
   await db.insert(payrollLinesTable).values(calculated.lines.map((line) => ({ ...line, payRunId: run.id })));
   const [updatedPeriod] = await db.update(payPeriodsTable).set({ status: "ready" }).where(eq(payPeriodsTable.id, period.id)).returning();
   void updatedPeriod;
-  res.json(CalculatePayPeriodResponse.parse({
-    ...run,
-    createdAt: run.createdAt.toISOString(),
-    finalizedAt: run.finalizedAt?.toISOString() ?? null,
-    federalWithholding: Number(run.federalWithholding),
-    stateWithholding: Number(run.stateWithholding),
-    socialSecurity: Number(run.socialSecurity),
-    medicare: Number(run.medicare),
-    employeeTaxes: Number(run.employeeTaxes),
-    netPay: Number(run.netPay),
-    employerSocialSecurity: Number(run.employerSocialSecurity),
-    employerMedicare: Number(run.employerMedicare),
-    futa: Number(run.futa),
-    employerTaxes: Number(run.employerTaxes),
-    totalCost: Number(run.totalCost),
-    complianceWarnings: calculated.complianceWarnings,
-    lines: calculated.lines,
-  }));
+  res.json(CalculatePayPeriodResponse.parse(toPayRunResponse(run, calculated.lines, calculated.complianceWarnings)));
+});
+
+router.post("/pay-runs/:id/finalize", async (req, res): Promise<void> => {
+  const params = FinalizePayRunParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  const [run] = await db.select().from(payRunsTable).where(eq(payRunsTable.id, params.data.id));
+  if (!run) {
+    res.status(404).json({ error: "Pay run not found" });
+    return;
+  }
+  if (run.status === "paid") {
+    res.status(409).json({ error: "Paid payroll runs cannot be finalized again." });
+    return;
+  }
+  if (run.status === "finalized") {
+    res.status(409).json({ error: "Payroll run is already finalized." });
+    return;
+  }
+  if (run.status !== "ready") {
+    res.status(409).json({ error: "Only a calculated payroll run can be finalized." });
+    return;
+  }
+  const complianceWarnings = Array.isArray(run.complianceWarnings) ? run.complianceWarnings : [];
+  if (complianceWarnings.length > 0) {
+    res.status(409).json({ error: "Resolve compliance warnings before finalizing this payroll run." });
+    return;
+  }
+  const [finalizedRun] = await db
+    .update(payRunsTable)
+    .set({ status: "finalized", finalizedAt: new Date() })
+    .where(eq(payRunsTable.id, run.id))
+    .returning();
+  await db.update(payPeriodsTable).set({ status: "finalized" }).where(eq(payPeriodsTable.id, run.payPeriodId));
+  const lines = await db.select().from(payrollLinesTable).where(eq(payrollLinesTable.payRunId, finalizedRun.id)).orderBy(asc(payrollLinesTable.staffName));
+  res.json(FinalizePayRunResponse.parse(toPayRunResponse(finalizedRun, lines, complianceWarnings)));
 });
 
 router.get("/pay-runs/:id", async (req, res): Promise<void> => {
@@ -554,55 +648,9 @@ router.get("/pay-runs/:id", async (req, res): Promise<void> => {
     return;
   }
   const lines = await db.select().from(payrollLinesTable).where(eq(payrollLinesTable.payRunId, run.id)).orderBy(asc(payrollLinesTable.staffName));
-  const staff = await db.select().from(staffTable);
-  const staffById = new Map(staff.map((member) => [member.id, member]));
-  const complianceWarnings = [
-    ...new Set(
-      lines.flatMap((line) => {
-        const member = staffById.get(line.staffId);
-        return member ? calculateTaxBreakdown(Number(line.grossPay), toTaxProfile(member)).complianceWarnings : [];
-      }),
-    ),
-  ];
+  const complianceWarnings = Array.isArray(run.complianceWarnings) ? run.complianceWarnings : [];
   res.json(
-    GetPayRunResponse.parse({
-      ...run,
-      createdAt: run.createdAt.toISOString(),
-      finalizedAt: run.finalizedAt?.toISOString() ?? null,
-      totalHours: Number(run.totalHours),
-      grossPay: Number(run.grossPay),
-      federalWithholding: Number(run.federalWithholding),
-      stateWithholding: Number(run.stateWithholding),
-      socialSecurity: Number(run.socialSecurity),
-      medicare: Number(run.medicare),
-      employeeTaxes: Number(run.employeeTaxes),
-      netPay: Number(run.netPay),
-      employerSocialSecurity: Number(run.employerSocialSecurity),
-      employerMedicare: Number(run.employerMedicare),
-      futa: Number(run.futa),
-      employerTaxes: Number(run.employerTaxes),
-      totalCost: Number(run.totalCost),
-      complianceWarnings,
-      lines: lines.map((line) => ({
-        staffId: line.staffId,
-        staffName: line.staffName,
-        role: line.role,
-        hours: Number(line.hours),
-        hourlyRate: Number(line.hourlyRate),
-        grossPay: Number(line.grossPay),
-        federalWithholding: Number(line.federalWithholding),
-        stateWithholding: Number(line.stateWithholding),
-        socialSecurity: Number(line.socialSecurity),
-        medicare: Number(line.medicare),
-        employeeTaxes: Number(line.employeeTaxes),
-        netPay: Number(line.netPay),
-        employerSocialSecurity: Number(line.employerSocialSecurity),
-        employerMedicare: Number(line.employerMedicare),
-        futa: Number(line.futa),
-        employerTaxes: Number(line.employerTaxes),
-        totalCost: Number(line.totalCost),
-      })),
-    }),
+    GetPayRunResponse.parse(toPayRunResponse(run, lines, complianceWarnings)),
   );
 });
 

@@ -213,6 +213,23 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PayRun"
+  /pay-runs/{id}/finalize:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    post:
+      operationId: finalizePayRun
+      tags: [payroll]
+      summary: Finalize a reviewed payroll run
+      description: Locks the calculated run for audit purposes and records its finalization timestamp.
+      responses:
+        "200":
+          description: Finalized payroll run
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayRun"
+        "409":
+          description: The run is not ready to finalize or is already locked
   /pay-runs/{id}:
     parameters:
       - $ref: "#/components/parameters/Id"
@@ -448,7 +465,7 @@ components:
           type: string
     PayPeriod:
       type: object
-      required: [id, startDate, endDate, payDate, status, totalHours, grossPay, staffCount]
+      required: [id, startDate, endDate, payDate, status, payRunId, totalHours, grossPay, staffCount]
       properties:
         id:
           type: integer
@@ -463,7 +480,9 @@ components:
           format: date
         status:
           type: string
-          enum: [open, ready, paid]
+          enum: [open, ready, finalized, paid]
+        payRunId:
+          type: ["integer", "null"]
         totalHours:
           type: number
           format: double
@@ -539,7 +558,7 @@ components:
           format: double
     PayRun:
       type: object
-      required: [id, payPeriodId, status, createdAt, totalHours, grossPay, federalWithholding, stateWithholding, socialSecurity, medicare, employeeTaxes, netPay, employerSocialSecurity, employerMedicare, futa, employerTaxes, totalCost, complianceWarnings, lines]
+      required: [id, payPeriodId, status, createdAt, finalizedAt, totalHours, grossPay, federalWithholding, stateWithholding, socialSecurity, medicare, employeeTaxes, netPay, employerSocialSecurity, employerMedicare, futa, employerTaxes, totalCost, complianceWarnings, lines]
       properties:
         id:
           type: integer
@@ -547,7 +566,7 @@ components:
           type: integer
         status:
           type: string
-          enum: [draft, ready, paid]
+          enum: [draft, ready, finalized, paid]
         createdAt:
           type: string
           format: date-time

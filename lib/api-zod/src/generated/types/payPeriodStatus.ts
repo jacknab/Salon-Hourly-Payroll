@@ -12,5 +12,6 @@ export type PayPeriodStatus = typeof PayPeriodStatus[keyof typeof PayPeriodStatu
 export const PayPeriodStatus = {
   open: 'open',
   ready: 'ready',
+  finalized: 'finalized',
   paid: 'paid',
 } as const;

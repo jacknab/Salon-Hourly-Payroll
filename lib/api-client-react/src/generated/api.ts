@@ -1024,6 +1024,78 @@ export const useCalculatePayPeriod = <TError = ErrorType<unknown>,
       return useMutation(getCalculatePayPeriodMutationOptions(options));
     }
 
+export const getFinalizePayRunUrl = (id: number,) => {
+
+
+
+
+  return `/api/pay-runs/${id}/finalize`
+}
+
+/**
+ * Locks the calculated run for audit purposes and records its finalization timestamp.
+ * @summary Finalize a reviewed payroll run
+ */
+export const finalizePayRun = async (id: number, options?: Parameters<typeof customFetch>[1]): Promise<PayRun> => {
+
+  return customFetch<PayRun>(getFinalizePayRunUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getFinalizePayRunMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof finalizePayRun>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof finalizePayRun>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['finalizePayRun'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof finalizePayRun>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  finalizePayRun(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FinalizePayRunMutationResult = NonNullable<Awaited<ReturnType<typeof finalizePayRun>>>
+
+    export type FinalizePayRunMutationError = ErrorType<void>
+
+    /**
+ * @summary Finalize a reviewed payroll run
+ */
+export const useFinalizePayRun = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof finalizePayRun>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof finalizePayRun>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getFinalizePayRunMutationOptions(options));
+    }
+
 export const getGetPayRunUrl = (id: number,) => {
 
 

@@ -14,7 +14,7 @@ export interface PayRun {
   status: PayRunStatus;
   createdAt: Date;
   /** @nullable */
-  finalizedAt?: Date | null;
+  finalizedAt: Date | null;
   totalHours: number;
   grossPay: number;
   federalWithholding: number;

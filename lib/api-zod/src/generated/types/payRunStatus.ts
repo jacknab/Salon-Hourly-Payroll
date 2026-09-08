@@ -12,5 +12,6 @@ export type PayRunStatus = typeof PayRunStatus[keyof typeof PayRunStatus];
 export const PayRunStatus = {
   draft: 'draft',
   ready: 'ready',
+  finalized: 'finalized',
   paid: 'paid',
 } as const;

@@ -37,7 +37,8 @@ export const GetPayrollSummaryResponse = zod.object({
   "startDate": zod.coerce.date(),
   "endDate": zod.coerce.date(),
   "payDate": zod.coerce.date(),
-  "status": zod.enum(['open', 'ready', 'paid']),
+  "status": zod.enum(['open', 'ready', 'finalized', 'paid']),
+  "payRunId": zod.number().int().nullable(),
   "totalHours": zod.number(),
   "grossPay": zod.number(),
   "staffCount": zod.number().int()
@@ -365,7 +366,8 @@ export const ListPayPeriodsResponseItem = zod.object({
   "startDate": zod.coerce.date(),
   "endDate": zod.coerce.date(),
   "payDate": zod.coerce.date(),
-  "status": zod.enum(['open', 'ready', 'paid']),
+  "status": zod.enum(['open', 'ready', 'finalized', 'paid']),
+  "payRunId": zod.number().int().nullable(),
   "totalHours": zod.number(),
   "grossPay": zod.number(),
   "staffCount": zod.number().int()
@@ -387,7 +389,8 @@ export const CreatePayPeriodResponse = zod.object({
   "startDate": zod.coerce.date(),
   "endDate": zod.coerce.date(),
   "payDate": zod.coerce.date(),
-  "status": zod.enum(['open', 'ready', 'paid']),
+  "status": zod.enum(['open', 'ready', 'finalized', 'paid']),
+  "payRunId": zod.number().int().nullable(),
   "totalHours": zod.number(),
   "grossPay": zod.number(),
   "staffCount": zod.number().int()
@@ -404,9 +407,59 @@ export const CalculatePayPeriodParams = zod.object({
 export const CalculatePayPeriodResponse = zod.object({
   "id": zod.number().int(),
   "payPeriodId": zod.number().int(),
-  "status": zod.enum(['draft', 'ready', 'paid']),
+  "status": zod.enum(['draft', 'ready', 'finalized', 'paid']),
   "createdAt": zod.coerce.date(),
-  "finalizedAt": zod.coerce.date().nullish(),
+  "finalizedAt": zod.coerce.date().nullable(),
+  "totalHours": zod.number(),
+  "grossPay": zod.number(),
+  "federalWithholding": zod.number(),
+  "stateWithholding": zod.number(),
+  "socialSecurity": zod.number(),
+  "medicare": zod.number(),
+  "employeeTaxes": zod.number(),
+  "netPay": zod.number(),
+  "employerSocialSecurity": zod.number(),
+  "employerMedicare": zod.number(),
+  "futa": zod.number(),
+  "employerTaxes": zod.number(),
+  "totalCost": zod.number(),
+  "complianceWarnings": zod.array(zod.string()),
+  "lines": zod.array(zod.object({
+  "staffId": zod.number().int(),
+  "staffName": zod.string(),
+  "role": zod.string(),
+  "hours": zod.number(),
+  "hourlyRate": zod.number(),
+  "grossPay": zod.number(),
+  "federalWithholding": zod.number(),
+  "stateWithholding": zod.number(),
+  "socialSecurity": zod.number(),
+  "medicare": zod.number(),
+  "employeeTaxes": zod.number(),
+  "netPay": zod.number(),
+  "employerSocialSecurity": zod.number(),
+  "employerMedicare": zod.number(),
+  "futa": zod.number(),
+  "employerTaxes": zod.number(),
+  "totalCost": zod.number()
+}))
+})
+
+
+/**
+ * Locks the calculated run for audit purposes and records its finalization timestamp.
+ * @summary Finalize a reviewed payroll run
+ */
+export const FinalizePayRunParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const FinalizePayRunResponse = zod.object({
+  "id": zod.number().int(),
+  "payPeriodId": zod.number().int(),
+  "status": zod.enum(['draft', 'ready', 'finalized', 'paid']),
+  "createdAt": zod.coerce.date(),
+  "finalizedAt": zod.coerce.date().nullable(),
   "totalHours": zod.number(),
   "grossPay": zod.number(),
   "federalWithholding": zod.number(),
@@ -453,9 +506,9 @@ export const GetPayRunParams = zod.object({
 export const GetPayRunResponse = zod.object({
   "id": zod.number().int(),
   "payPeriodId": zod.number().int(),
-  "status": zod.enum(['draft', 'ready', 'paid']),
+  "status": zod.enum(['draft', 'ready', 'finalized', 'paid']),
   "createdAt": zod.coerce.date(),
-  "finalizedAt": zod.coerce.date().nullish(),
+  "finalizedAt": zod.coerce.date().nullable(),
   "totalHours": zod.number(),
   "grossPay": zod.number(),
   "federalWithholding": zod.number(),
