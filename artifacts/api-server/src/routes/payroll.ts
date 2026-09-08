@@ -35,6 +35,7 @@ import {
   staffTable,
   timeEntriesTable,
 } from "@workspace/db";
+import { calculateTaxBreakdown, type TaxProfile } from "../lib/payroll-tax";
 
 const router: IRouter = Router();
 
@@ -63,7 +64,38 @@ function toStaffResponse(staff: StaffRow) {
     email: staff.email,
     hourlyRate: Number(staff.hourlyRate),
     status: staff.status,
+    federalFilingStatus: staff.federalFilingStatus,
+    federalAllowances: staff.federalAllowances,
+    extraFederalWithholding: Number(staff.extraFederalWithholding),
+    workState: staff.workState,
+    stateAllowances: staff.stateAllowances,
+    extraStateWithholding: Number(staff.extraStateWithholding),
+    ytdWages: Number(staff.ytdWages),
+    ytdFutaWages: Number(staff.ytdFutaWages),
+    taxProfileReviewed: staff.taxProfileReviewed === "true",
   };
+}
+
+function toTaxProfile(staff: StaffRow): TaxProfile {
+  return {
+    federalFilingStatus: staff.federalFilingStatus === "married" ? "married" : "single",
+    federalAllowances: Number(staff.federalAllowances),
+    extraFederalWithholding: Number(staff.extraFederalWithholding),
+    workState: staff.workState,
+    stateAllowances: Number(staff.stateAllowances),
+    extraStateWithholding: Number(staff.extraStateWithholding),
+    ytdWages: Number(staff.ytdWages),
+    ytdFutaWages: Number(staff.ytdFutaWages),
+    taxProfileReviewed: staff.taxProfileReviewed === "true",
+  };
+}
+
+function toStaffValues(data: Record<string, unknown>) {
+  const values = { ...data } as Record<string, unknown>;
+  if (typeof values.taxProfileReviewed === "boolean") values.taxProfileReviewed = String(values.taxProfileReviewed);
+  if (typeof values.workState === "string") values.workState = values.workState.toUpperCase();
+  values.taxProfileUpdatedAt = new Date();
+  return values;
 }
 
 async function getPeriodTotals(period: PayPeriodRow) {
@@ -156,7 +188,7 @@ router.post("/staff", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const [staff] = await db.insert(staffTable).values(parsed.data).returning();
+  const [staff] = await db.insert(staffTable).values(toStaffValues(parsed.data) as typeof staffTable.$inferInsert).returning();
   res.status(201).json(CreateStaffResponse.parse(toStaffResponse(staff)));
 });
 
@@ -171,7 +203,11 @@ router.patch("/staff/:id", async (req, res): Promise<void> => {
     res.status(400).json({ error: body.error.message });
     return;
   }
-  const [staff] = await db.update(staffTable).set(body.data).where(eq(staffTable.id, params.data.id)).returning();
+  const [staff] = await db
+    .update(staffTable)
+    .set(toStaffValues(body.data) as Partial<typeof staffTable.$inferInsert>)
+    .where(eq(staffTable.id, params.data.id))
+    .returning();
   if (!staff) {
     res.status(404).json({ error: "Staff member not found" });
     return;
@@ -356,17 +392,68 @@ async function buildPayRun(period: PayPeriodRow) {
     current.hours += Number(entry.hours);
     grouped.set(member.id, current);
   }
-  const lines = [...grouped.values()].map(({ hours, member }) => ({
-    staffId: member.id,
-    staffName: `${member.firstName} ${member.lastName}`,
-    role: member.role,
-    hours: roundMoney(hours),
-    hourlyRate: Number(member.hourlyRate),
-    grossPay: roundMoney(hours * Number(member.hourlyRate)),
-  }));
+  const lines = [...grouped.values()].map(({ hours, member }) => {
+    const grossPay = roundMoney(hours * Number(member.hourlyRate));
+    return {
+      staffId: member.id,
+      staffName: `${member.firstName} ${member.lastName}`,
+      role: member.role,
+      hours: roundMoney(hours),
+      hourlyRate: Number(member.hourlyRate),
+      grossPay,
+      ...calculateTaxBreakdown(grossPay, toTaxProfile(member)),
+    };
+  });
+  const totals = lines.reduce(
+    (total, line) => ({
+      totalHours: total.totalHours + line.hours,
+      grossPay: total.grossPay + line.grossPay,
+      federalWithholding: total.federalWithholding + line.federalWithholding,
+      stateWithholding: total.stateWithholding + line.stateWithholding,
+      socialSecurity: total.socialSecurity + line.socialSecurity,
+      medicare: total.medicare + line.medicare,
+      employeeTaxes: total.employeeTaxes + line.employeeTaxes,
+      netPay: total.netPay + line.netPay,
+      employerSocialSecurity: total.employerSocialSecurity + line.employerSocialSecurity,
+      employerMedicare: total.employerMedicare + line.employerMedicare,
+      futa: total.futa + line.futa,
+      employerTaxes: total.employerTaxes + line.employerTaxes,
+      totalCost: total.totalCost + line.totalCost,
+    }),
+    {
+      totalHours: 0,
+      grossPay: 0,
+      federalWithholding: 0,
+      stateWithholding: 0,
+      socialSecurity: 0,
+      medicare: 0,
+      employeeTaxes: 0,
+      netPay: 0,
+      employerSocialSecurity: 0,
+      employerMedicare: 0,
+      futa: 0,
+      employerTaxes: 0,
+      totalCost: 0,
+    },
+  );
+  const roundedTotals = {
+    totalHours: roundMoney(totals.totalHours),
+    grossPay: roundMoney(totals.grossPay),
+    federalWithholding: roundMoney(totals.federalWithholding),
+    stateWithholding: roundMoney(totals.stateWithholding),
+    socialSecurity: roundMoney(totals.socialSecurity),
+    medicare: roundMoney(totals.medicare),
+    employeeTaxes: roundMoney(totals.employeeTaxes),
+    netPay: roundMoney(totals.netPay),
+    employerSocialSecurity: roundMoney(totals.employerSocialSecurity),
+    employerMedicare: roundMoney(totals.employerMedicare),
+    futa: roundMoney(totals.futa),
+    employerTaxes: roundMoney(totals.employerTaxes),
+    totalCost: roundMoney(totals.totalCost),
+  };
   return {
-    totalHours: roundMoney(lines.reduce((sum, line) => sum + line.hours, 0)),
-    grossPay: roundMoney(lines.reduce((sum, line) => sum + line.grossPay, 0)),
+    ...roundedTotals,
+    complianceWarnings: [...new Set(lines.flatMap((line) => line.complianceWarnings))],
     lines,
   };
 }
@@ -388,14 +475,45 @@ router.post("/pay-periods/:id/calculate", async (req, res): Promise<void> => {
     ? (
         await db
           .update(payRunsTable)
-          .set({ totalHours: calculated.totalHours, grossPay: calculated.grossPay, status: "ready" })
+      .set({
+        totalHours: calculated.totalHours,
+        grossPay: calculated.grossPay,
+        federalWithholding: calculated.federalWithholding,
+        stateWithholding: calculated.stateWithholding,
+        socialSecurity: calculated.socialSecurity,
+        medicare: calculated.medicare,
+        employeeTaxes: calculated.employeeTaxes,
+        netPay: calculated.netPay,
+        employerSocialSecurity: calculated.employerSocialSecurity,
+        employerMedicare: calculated.employerMedicare,
+        futa: calculated.futa,
+        employerTaxes: calculated.employerTaxes,
+        totalCost: calculated.totalCost,
+        status: "ready",
+      })
           .where(eq(payRunsTable.id, existing.id))
           .returning()
       )[0]
     : (
         await db
           .insert(payRunsTable)
-          .values({ payPeriodId: period.id, status: "ready", totalHours: calculated.totalHours, grossPay: calculated.grossPay })
+          .values({
+            payPeriodId: period.id,
+            status: "ready",
+            totalHours: calculated.totalHours,
+            grossPay: calculated.grossPay,
+            federalWithholding: calculated.federalWithholding,
+            stateWithholding: calculated.stateWithholding,
+            socialSecurity: calculated.socialSecurity,
+            medicare: calculated.medicare,
+            employeeTaxes: calculated.employeeTaxes,
+            netPay: calculated.netPay,
+            employerSocialSecurity: calculated.employerSocialSecurity,
+            employerMedicare: calculated.employerMedicare,
+            futa: calculated.futa,
+            employerTaxes: calculated.employerTaxes,
+            totalCost: calculated.totalCost,
+          })
           .returning()
       )[0];
   if (existing) {
@@ -408,6 +526,18 @@ router.post("/pay-periods/:id/calculate", async (req, res): Promise<void> => {
     ...run,
     createdAt: run.createdAt.toISOString(),
     finalizedAt: run.finalizedAt?.toISOString() ?? null,
+    federalWithholding: Number(run.federalWithholding),
+    stateWithholding: Number(run.stateWithholding),
+    socialSecurity: Number(run.socialSecurity),
+    medicare: Number(run.medicare),
+    employeeTaxes: Number(run.employeeTaxes),
+    netPay: Number(run.netPay),
+    employerSocialSecurity: Number(run.employerSocialSecurity),
+    employerMedicare: Number(run.employerMedicare),
+    futa: Number(run.futa),
+    employerTaxes: Number(run.employerTaxes),
+    totalCost: Number(run.totalCost),
+    complianceWarnings: calculated.complianceWarnings,
     lines: calculated.lines,
   }));
 });
@@ -424,6 +554,16 @@ router.get("/pay-runs/:id", async (req, res): Promise<void> => {
     return;
   }
   const lines = await db.select().from(payrollLinesTable).where(eq(payrollLinesTable.payRunId, run.id)).orderBy(asc(payrollLinesTable.staffName));
+  const staff = await db.select().from(staffTable);
+  const staffById = new Map(staff.map((member) => [member.id, member]));
+  const complianceWarnings = [
+    ...new Set(
+      lines.flatMap((line) => {
+        const member = staffById.get(line.staffId);
+        return member ? calculateTaxBreakdown(Number(line.grossPay), toTaxProfile(member)).complianceWarnings : [];
+      }),
+    ),
+  ];
   res.json(
     GetPayRunResponse.parse({
       ...run,
@@ -431,6 +571,18 @@ router.get("/pay-runs/:id", async (req, res): Promise<void> => {
       finalizedAt: run.finalizedAt?.toISOString() ?? null,
       totalHours: Number(run.totalHours),
       grossPay: Number(run.grossPay),
+      federalWithholding: Number(run.federalWithholding),
+      stateWithholding: Number(run.stateWithholding),
+      socialSecurity: Number(run.socialSecurity),
+      medicare: Number(run.medicare),
+      employeeTaxes: Number(run.employeeTaxes),
+      netPay: Number(run.netPay),
+      employerSocialSecurity: Number(run.employerSocialSecurity),
+      employerMedicare: Number(run.employerMedicare),
+      futa: Number(run.futa),
+      employerTaxes: Number(run.employerTaxes),
+      totalCost: Number(run.totalCost),
+      complianceWarnings,
       lines: lines.map((line) => ({
         staffId: line.staffId,
         staffName: line.staffName,
@@ -438,6 +590,17 @@ router.get("/pay-runs/:id", async (req, res): Promise<void> => {
         hours: Number(line.hours),
         hourlyRate: Number(line.hourlyRate),
         grossPay: Number(line.grossPay),
+        federalWithholding: Number(line.federalWithholding),
+        stateWithholding: Number(line.stateWithholding),
+        socialSecurity: Number(line.socialSecurity),
+        medicare: Number(line.medicare),
+        employeeTaxes: Number(line.employeeTaxes),
+        netPay: Number(line.netPay),
+        employerSocialSecurity: Number(line.employerSocialSecurity),
+        employerMedicare: Number(line.employerMedicare),
+        futa: Number(line.futa),
+        employerTaxes: Number(line.employerTaxes),
+        totalCost: Number(line.totalCost),
       })),
     }),
   );

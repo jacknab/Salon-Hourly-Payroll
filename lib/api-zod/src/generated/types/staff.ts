@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { StaffFederalFilingStatus } from './staffFederalFilingStatus';
 import type { StaffStatus } from './staffStatus';
 
 export interface Staff {
@@ -16,4 +17,23 @@ export interface Staff {
   email?: string | null;
   hourlyRate: number;
   status: StaffStatus;
+  federalFilingStatus: StaffFederalFilingStatus;
+  /** @minimum 0 */
+  federalAllowances: number;
+  /** @minimum 0 */
+  extraFederalWithholding: number;
+  /**
+     * @minLength 2
+     * @maxLength 2
+     */
+  workState: string;
+  /** @minimum 0 */
+  stateAllowances: number;
+  /** @minimum 0 */
+  extraStateWithholding: number;
+  /** @minimum 0 */
+  ytdWages: number;
+  /** @minimum 0 */
+  ytdFutaWages: number;
+  taxProfileReviewed: boolean;
 }

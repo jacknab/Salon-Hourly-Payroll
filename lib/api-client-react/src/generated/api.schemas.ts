@@ -17,6 +17,14 @@ export const StaffStatus = {
   inactive: 'inactive',
 } as const;
 
+export type StaffFederalFilingStatus = typeof StaffFederalFilingStatus[keyof typeof StaffFederalFilingStatus];
+
+
+export const StaffFederalFilingStatus = {
+  single: 'single',
+  married: 'married',
+} as const;
+
 export interface Staff {
   id: number;
   firstName: string;
@@ -26,6 +34,25 @@ export interface Staff {
   email?: string | null;
   hourlyRate: number;
   status: StaffStatus;
+  federalFilingStatus: StaffFederalFilingStatus;
+  /** @minimum 0 */
+  federalAllowances: number;
+  /** @minimum 0 */
+  extraFederalWithholding: number;
+  /**
+     * @minLength 2
+     * @maxLength 2
+     */
+  workState: string;
+  /** @minimum 0 */
+  stateAllowances: number;
+  /** @minimum 0 */
+  extraStateWithholding: number;
+  /** @minimum 0 */
+  ytdWages: number;
+  /** @minimum 0 */
+  ytdFutaWages: number;
+  taxProfileReviewed: boolean;
 }
 
 export type StaffInputStatus = typeof StaffInputStatus[keyof typeof StaffInputStatus];
@@ -34,6 +61,14 @@ export type StaffInputStatus = typeof StaffInputStatus[keyof typeof StaffInputSt
 export const StaffInputStatus = {
   active: 'active',
   inactive: 'inactive',
+} as const;
+
+export type StaffInputFederalFilingStatus = typeof StaffInputFederalFilingStatus[keyof typeof StaffInputFederalFilingStatus];
+
+
+export const StaffInputFederalFilingStatus = {
+  single: 'single',
+  married: 'married',
 } as const;
 
 export interface StaffInput {
@@ -47,6 +82,25 @@ export interface StaffInput {
   /** @minimum 0 */
   hourlyRate: number;
   status?: StaffInputStatus;
+  federalFilingStatus?: StaffInputFederalFilingStatus;
+  /** @minimum 0 */
+  federalAllowances?: number;
+  /** @minimum 0 */
+  extraFederalWithholding?: number;
+  /**
+     * @minLength 2
+     * @maxLength 2
+     */
+  workState?: string;
+  /** @minimum 0 */
+  stateAllowances?: number;
+  /** @minimum 0 */
+  extraStateWithholding?: number;
+  /** @minimum 0 */
+  ytdWages?: number;
+  /** @minimum 0 */
+  ytdFutaWages?: number;
+  taxProfileReviewed?: boolean;
 }
 
 export type StaffUpdateStatus = typeof StaffUpdateStatus[keyof typeof StaffUpdateStatus];
@@ -55,6 +109,14 @@ export type StaffUpdateStatus = typeof StaffUpdateStatus[keyof typeof StaffUpdat
 export const StaffUpdateStatus = {
   active: 'active',
   inactive: 'inactive',
+} as const;
+
+export type StaffUpdateFederalFilingStatus = typeof StaffUpdateFederalFilingStatus[keyof typeof StaffUpdateFederalFilingStatus];
+
+
+export const StaffUpdateFederalFilingStatus = {
+  single: 'single',
+  married: 'married',
 } as const;
 
 export interface StaffUpdate {
@@ -68,6 +130,25 @@ export interface StaffUpdate {
   /** @minimum 0 */
   hourlyRate?: number;
   status?: StaffUpdateStatus;
+  federalFilingStatus?: StaffUpdateFederalFilingStatus;
+  /** @minimum 0 */
+  federalAllowances?: number;
+  /** @minimum 0 */
+  extraFederalWithholding?: number;
+  /**
+     * @minLength 2
+     * @maxLength 2
+     */
+  workState?: string;
+  /** @minimum 0 */
+  stateAllowances?: number;
+  /** @minimum 0 */
+  extraStateWithholding?: number;
+  /** @minimum 0 */
+  ytdWages?: number;
+  /** @minimum 0 */
+  ytdFutaWages?: number;
+  taxProfileReviewed?: boolean;
 }
 
 export interface TimeEntry {
@@ -135,6 +216,17 @@ export interface PayrollLine {
   hours: number;
   hourlyRate: number;
   grossPay: number;
+  federalWithholding: number;
+  stateWithholding: number;
+  socialSecurity: number;
+  medicare: number;
+  employeeTaxes: number;
+  netPay: number;
+  employerSocialSecurity: number;
+  employerMedicare: number;
+  futa: number;
+  employerTaxes: number;
+  totalCost: number;
 }
 
 export type PayRunStatus = typeof PayRunStatus[keyof typeof PayRunStatus];
@@ -155,6 +247,18 @@ export interface PayRun {
   finalizedAt?: string | null;
   totalHours: number;
   grossPay: number;
+  federalWithholding: number;
+  stateWithholding: number;
+  socialSecurity: number;
+  medicare: number;
+  employeeTaxes: number;
+  netPay: number;
+  employerSocialSecurity: number;
+  employerMedicare: number;
+  futa: number;
+  employerTaxes: number;
+  totalCost: number;
+  complianceWarnings: string[];
   lines: PayrollLine[];
 }
 

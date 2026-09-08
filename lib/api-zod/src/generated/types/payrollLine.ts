@@ -13,4 +13,15 @@ export interface PayrollLine {
   hours: number;
   hourlyRate: number;
   grossPay: number;
+  federalWithholding: number;
+  stateWithholding: number;
+  socialSecurity: number;
+  medicare: number;
+  employeeTaxes: number;
+  netPay: number;
+  employerSocialSecurity: number;
+  employerMedicare: number;
+  futa: number;
+  employerTaxes: number;
+  totalCost: number;
 }

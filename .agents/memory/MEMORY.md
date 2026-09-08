@@ -1,0 +1,1 @@
+- [Artifact build environment](artifact-build-environment.md) — managed Vite services supply PORT and BASE_PATH; bare workspace builds need explicit artifact variables.

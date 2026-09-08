@@ -48,6 +48,23 @@ export const GetPayrollSummaryResponse = zod.object({
 /**
  * @summary List salon staff
  */
+export const listStaffResponseFederalAllowancesMin = 0;
+
+export const listStaffResponseExtraFederalWithholdingMin = 0;
+
+export const listStaffResponseWorkStateMin = 2;
+export const listStaffResponseWorkStateMax = 2;
+
+export const listStaffResponseStateAllowancesMin = 0;
+
+export const listStaffResponseExtraStateWithholdingMin = 0;
+
+export const listStaffResponseYtdWagesMin = 0;
+
+export const listStaffResponseYtdFutaWagesMin = 0;
+
+
+
 export const ListStaffResponseItem = zod.object({
   "id": zod.number().int(),
   "firstName": zod.string(),
@@ -55,7 +72,16 @@ export const ListStaffResponseItem = zod.object({
   "role": zod.string(),
   "email": zod.string().nullish(),
   "hourlyRate": zod.number(),
-  "status": zod.enum(['active', 'inactive'])
+  "status": zod.enum(['active', 'inactive']),
+  "federalFilingStatus": zod.enum(['single', 'married']),
+  "federalAllowances": zod.number().int().min(listStaffResponseFederalAllowancesMin),
+  "extraFederalWithholding": zod.number().min(listStaffResponseExtraFederalWithholdingMin),
+  "workState": zod.string().min(listStaffResponseWorkStateMin).max(listStaffResponseWorkStateMax),
+  "stateAllowances": zod.number().int().min(listStaffResponseStateAllowancesMin),
+  "extraStateWithholding": zod.number().min(listStaffResponseExtraStateWithholdingMin),
+  "ytdWages": zod.number().min(listStaffResponseYtdWagesMin),
+  "ytdFutaWages": zod.number().min(listStaffResponseYtdFutaWagesMin),
+  "taxProfileReviewed": zod.boolean()
 })
 export const ListStaffResponse = zod.array(ListStaffResponseItem)
 
@@ -69,6 +95,30 @@ export const ListStaffResponse = zod.array(ListStaffResponseItem)
 export const createStaffBodyHourlyRateMin = 0;
 
 export const createStaffBodyStatusDefault = `active`;
+export const createStaffBodyFederalFilingStatusDefault = `single`;
+export const createStaffBodyFederalAllowancesDefault = 0;
+export const createStaffBodyFederalAllowancesMin = 0;
+
+export const createStaffBodyExtraFederalWithholdingDefault = 0;
+export const createStaffBodyExtraFederalWithholdingMin = 0;
+
+export const createStaffBodyWorkStateDefault = `CO`;
+export const createStaffBodyWorkStateMin = 2;
+export const createStaffBodyWorkStateMax = 2;
+
+export const createStaffBodyStateAllowancesDefault = 0;
+export const createStaffBodyStateAllowancesMin = 0;
+
+export const createStaffBodyExtraStateWithholdingDefault = 0;
+export const createStaffBodyExtraStateWithholdingMin = 0;
+
+export const createStaffBodyYtdWagesDefault = 0;
+export const createStaffBodyYtdWagesMin = 0;
+
+export const createStaffBodyYtdFutaWagesDefault = 0;
+export const createStaffBodyYtdFutaWagesMin = 0;
+
+export const createStaffBodyTaxProfileReviewedDefault = false;
 
 export const CreateStaffBody = zod.object({
   "firstName": zod.string().min(1),
@@ -76,8 +126,34 @@ export const CreateStaffBody = zod.object({
   "role": zod.string().min(1),
   "email": zod.string().optional(),
   "hourlyRate": zod.number().min(createStaffBodyHourlyRateMin),
-  "status": zod.enum(['active', 'inactive']).default(createStaffBodyStatusDefault)
+  "status": zod.enum(['active', 'inactive']).default(createStaffBodyStatusDefault),
+  "federalFilingStatus": zod.enum(['single', 'married']).default(createStaffBodyFederalFilingStatusDefault),
+  "federalAllowances": zod.number().int().min(createStaffBodyFederalAllowancesMin).default(createStaffBodyFederalAllowancesDefault),
+  "extraFederalWithholding": zod.number().min(createStaffBodyExtraFederalWithholdingMin).default(createStaffBodyExtraFederalWithholdingDefault),
+  "workState": zod.string().min(createStaffBodyWorkStateMin).max(createStaffBodyWorkStateMax).default(createStaffBodyWorkStateDefault),
+  "stateAllowances": zod.number().int().min(createStaffBodyStateAllowancesMin).default(createStaffBodyStateAllowancesDefault),
+  "extraStateWithholding": zod.number().min(createStaffBodyExtraStateWithholdingMin).default(createStaffBodyExtraStateWithholdingDefault),
+  "ytdWages": zod.number().min(createStaffBodyYtdWagesMin).default(createStaffBodyYtdWagesDefault),
+  "ytdFutaWages": zod.number().min(createStaffBodyYtdFutaWagesMin).default(createStaffBodyYtdFutaWagesDefault),
+  "taxProfileReviewed": zod.boolean().default(createStaffBodyTaxProfileReviewedDefault)
 })
+
+export const createStaffResponseFederalAllowancesMin = 0;
+
+export const createStaffResponseExtraFederalWithholdingMin = 0;
+
+export const createStaffResponseWorkStateMin = 2;
+export const createStaffResponseWorkStateMax = 2;
+
+export const createStaffResponseStateAllowancesMin = 0;
+
+export const createStaffResponseExtraStateWithholdingMin = 0;
+
+export const createStaffResponseYtdWagesMin = 0;
+
+export const createStaffResponseYtdFutaWagesMin = 0;
+
+
 
 export const CreateStaffResponse = zod.object({
   "id": zod.number().int(),
@@ -86,7 +162,16 @@ export const CreateStaffResponse = zod.object({
   "role": zod.string(),
   "email": zod.string().nullish(),
   "hourlyRate": zod.number(),
-  "status": zod.enum(['active', 'inactive'])
+  "status": zod.enum(['active', 'inactive']),
+  "federalFilingStatus": zod.enum(['single', 'married']),
+  "federalAllowances": zod.number().int().min(createStaffResponseFederalAllowancesMin),
+  "extraFederalWithholding": zod.number().min(createStaffResponseExtraFederalWithholdingMin),
+  "workState": zod.string().min(createStaffResponseWorkStateMin).max(createStaffResponseWorkStateMax),
+  "stateAllowances": zod.number().int().min(createStaffResponseStateAllowancesMin),
+  "extraStateWithholding": zod.number().min(createStaffResponseExtraStateWithholdingMin),
+  "ytdWages": zod.number().min(createStaffResponseYtdWagesMin),
+  "ytdFutaWages": zod.number().min(createStaffResponseYtdFutaWagesMin),
+  "taxProfileReviewed": zod.boolean()
 })
 
 
@@ -102,6 +187,21 @@ export const UpdateStaffParams = zod.object({
 
 export const updateStaffBodyHourlyRateMin = 0;
 
+export const updateStaffBodyFederalAllowancesMin = 0;
+
+export const updateStaffBodyExtraFederalWithholdingMin = 0;
+
+export const updateStaffBodyWorkStateMin = 2;
+export const updateStaffBodyWorkStateMax = 2;
+
+export const updateStaffBodyStateAllowancesMin = 0;
+
+export const updateStaffBodyExtraStateWithholdingMin = 0;
+
+export const updateStaffBodyYtdWagesMin = 0;
+
+export const updateStaffBodyYtdFutaWagesMin = 0;
+
 
 
 export const UpdateStaffBody = zod.object({
@@ -110,8 +210,34 @@ export const UpdateStaffBody = zod.object({
   "role": zod.string().min(1).optional(),
   "email": zod.string().optional(),
   "hourlyRate": zod.number().min(updateStaffBodyHourlyRateMin).optional(),
-  "status": zod.enum(['active', 'inactive']).optional()
+  "status": zod.enum(['active', 'inactive']).optional(),
+  "federalFilingStatus": zod.enum(['single', 'married']).optional(),
+  "federalAllowances": zod.number().int().min(updateStaffBodyFederalAllowancesMin).optional(),
+  "extraFederalWithholding": zod.number().min(updateStaffBodyExtraFederalWithholdingMin).optional(),
+  "workState": zod.string().min(updateStaffBodyWorkStateMin).max(updateStaffBodyWorkStateMax).optional(),
+  "stateAllowances": zod.number().int().min(updateStaffBodyStateAllowancesMin).optional(),
+  "extraStateWithholding": zod.number().min(updateStaffBodyExtraStateWithholdingMin).optional(),
+  "ytdWages": zod.number().min(updateStaffBodyYtdWagesMin).optional(),
+  "ytdFutaWages": zod.number().min(updateStaffBodyYtdFutaWagesMin).optional(),
+  "taxProfileReviewed": zod.boolean().optional()
 })
+
+export const updateStaffResponseFederalAllowancesMin = 0;
+
+export const updateStaffResponseExtraFederalWithholdingMin = 0;
+
+export const updateStaffResponseWorkStateMin = 2;
+export const updateStaffResponseWorkStateMax = 2;
+
+export const updateStaffResponseStateAllowancesMin = 0;
+
+export const updateStaffResponseExtraStateWithholdingMin = 0;
+
+export const updateStaffResponseYtdWagesMin = 0;
+
+export const updateStaffResponseYtdFutaWagesMin = 0;
+
+
 
 export const UpdateStaffResponse = zod.object({
   "id": zod.number().int(),
@@ -120,7 +246,16 @@ export const UpdateStaffResponse = zod.object({
   "role": zod.string(),
   "email": zod.string().nullish(),
   "hourlyRate": zod.number(),
-  "status": zod.enum(['active', 'inactive'])
+  "status": zod.enum(['active', 'inactive']),
+  "federalFilingStatus": zod.enum(['single', 'married']),
+  "federalAllowances": zod.number().int().min(updateStaffResponseFederalAllowancesMin),
+  "extraFederalWithholding": zod.number().min(updateStaffResponseExtraFederalWithholdingMin),
+  "workState": zod.string().min(updateStaffResponseWorkStateMin).max(updateStaffResponseWorkStateMax),
+  "stateAllowances": zod.number().int().min(updateStaffResponseStateAllowancesMin),
+  "extraStateWithholding": zod.number().min(updateStaffResponseExtraStateWithholdingMin),
+  "ytdWages": zod.number().min(updateStaffResponseYtdWagesMin),
+  "ytdFutaWages": zod.number().min(updateStaffResponseYtdFutaWagesMin),
+  "taxProfileReviewed": zod.boolean()
 })
 
 
@@ -274,13 +409,36 @@ export const CalculatePayPeriodResponse = zod.object({
   "finalizedAt": zod.coerce.date().nullish(),
   "totalHours": zod.number(),
   "grossPay": zod.number(),
+  "federalWithholding": zod.number(),
+  "stateWithholding": zod.number(),
+  "socialSecurity": zod.number(),
+  "medicare": zod.number(),
+  "employeeTaxes": zod.number(),
+  "netPay": zod.number(),
+  "employerSocialSecurity": zod.number(),
+  "employerMedicare": zod.number(),
+  "futa": zod.number(),
+  "employerTaxes": zod.number(),
+  "totalCost": zod.number(),
+  "complianceWarnings": zod.array(zod.string()),
   "lines": zod.array(zod.object({
   "staffId": zod.number().int(),
   "staffName": zod.string(),
   "role": zod.string(),
   "hours": zod.number(),
   "hourlyRate": zod.number(),
-  "grossPay": zod.number()
+  "grossPay": zod.number(),
+  "federalWithholding": zod.number(),
+  "stateWithholding": zod.number(),
+  "socialSecurity": zod.number(),
+  "medicare": zod.number(),
+  "employeeTaxes": zod.number(),
+  "netPay": zod.number(),
+  "employerSocialSecurity": zod.number(),
+  "employerMedicare": zod.number(),
+  "futa": zod.number(),
+  "employerTaxes": zod.number(),
+  "totalCost": zod.number()
 }))
 })
 
@@ -300,13 +458,36 @@ export const GetPayRunResponse = zod.object({
   "finalizedAt": zod.coerce.date().nullish(),
   "totalHours": zod.number(),
   "grossPay": zod.number(),
+  "federalWithholding": zod.number(),
+  "stateWithholding": zod.number(),
+  "socialSecurity": zod.number(),
+  "medicare": zod.number(),
+  "employeeTaxes": zod.number(),
+  "netPay": zod.number(),
+  "employerSocialSecurity": zod.number(),
+  "employerMedicare": zod.number(),
+  "futa": zod.number(),
+  "employerTaxes": zod.number(),
+  "totalCost": zod.number(),
+  "complianceWarnings": zod.array(zod.string()),
   "lines": zod.array(zod.object({
   "staffId": zod.number().int(),
   "staffName": zod.string(),
   "role": zod.string(),
   "hours": zod.number(),
   "hourlyRate": zod.number(),
-  "grossPay": zod.number()
+  "grossPay": zod.number(),
+  "federalWithholding": zod.number(),
+  "stateWithholding": zod.number(),
+  "socialSecurity": zod.number(),
+  "medicare": zod.number(),
+  "employeeTaxes": zod.number(),
+  "netPay": zod.number(),
+  "employerSocialSecurity": zod.number(),
+  "employerMedicare": zod.number(),
+  "futa": zod.number(),
+  "employerTaxes": zod.number(),
+  "totalCost": zod.number()
 }))
 })
 

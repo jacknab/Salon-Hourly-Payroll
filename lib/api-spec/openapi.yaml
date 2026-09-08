@@ -245,7 +245,7 @@ components:
         - status
     Staff:
       type: object
-      required: [id, firstName, lastName, role, hourlyRate, status]
+      required: [id, firstName, lastName, role, hourlyRate, status, federalFilingStatus, federalAllowances, extraFederalWithholding, workState, stateAllowances, extraStateWithholding, ytdWages, ytdFutaWages, taxProfileReviewed]
       properties:
         id:
           type: integer
@@ -263,6 +263,33 @@ components:
         status:
           type: string
           enum: [active, inactive]
+        federalFilingStatus:
+          type: string
+          enum: [single, married]
+        federalAllowances:
+          type: integer
+          minimum: 0
+        extraFederalWithholding:
+          type: number
+          minimum: 0
+        workState:
+          type: string
+          minLength: 2
+          maxLength: 2
+        stateAllowances:
+          type: integer
+          minimum: 0
+        extraStateWithholding:
+          type: number
+          minimum: 0
+        ytdWages:
+          type: number
+          minimum: 0
+        ytdFutaWages:
+          type: number
+          minimum: 0
+        taxProfileReviewed:
+          type: boolean
     StaffInput:
       type: object
       required: [firstName, lastName, role, hourlyRate]
@@ -286,6 +313,42 @@ components:
           type: string
           enum: [active, inactive]
           default: active
+        federalFilingStatus:
+          type: string
+          enum: [single, married]
+          default: single
+        federalAllowances:
+          type: integer
+          minimum: 0
+          default: 0
+        extraFederalWithholding:
+          type: number
+          minimum: 0
+          default: 0
+        workState:
+          type: string
+          minLength: 2
+          maxLength: 2
+          default: CO
+        stateAllowances:
+          type: integer
+          minimum: 0
+          default: 0
+        extraStateWithholding:
+          type: number
+          minimum: 0
+          default: 0
+        ytdWages:
+          type: number
+          minimum: 0
+          default: 0
+        ytdFutaWages:
+          type: number
+          minimum: 0
+          default: 0
+        taxProfileReviewed:
+          type: boolean
+          default: false
     StaffUpdate:
       type: object
       properties:
@@ -307,6 +370,33 @@ components:
         status:
           type: string
           enum: [active, inactive]
+        federalFilingStatus:
+          type: string
+          enum: [single, married]
+        federalAllowances:
+          type: integer
+          minimum: 0
+        extraFederalWithholding:
+          type: number
+          minimum: 0
+        workState:
+          type: string
+          minLength: 2
+          maxLength: 2
+        stateAllowances:
+          type: integer
+          minimum: 0
+        extraStateWithholding:
+          type: number
+          minimum: 0
+        ytdWages:
+          type: number
+          minimum: 0
+        ytdFutaWages:
+          type: number
+          minimum: 0
+        taxProfileReviewed:
+          type: boolean
     TimeEntry:
       type: object
       required: [id, staffId, staffName, workDate, hours]
@@ -397,7 +487,7 @@ components:
           format: date
     PayrollLine:
       type: object
-      required: [staffId, staffName, role, hours, hourlyRate, grossPay]
+      required: [staffId, staffName, role, hours, hourlyRate, grossPay, federalWithholding, stateWithholding, socialSecurity, medicare, employeeTaxes, netPay, employerSocialSecurity, employerMedicare, futa, employerTaxes, totalCost]
       properties:
         staffId:
           type: integer
@@ -414,9 +504,42 @@ components:
         grossPay:
           type: number
           format: double
+        federalWithholding:
+          type: number
+          format: double
+        stateWithholding:
+          type: number
+          format: double
+        socialSecurity:
+          type: number
+          format: double
+        medicare:
+          type: number
+          format: double
+        employeeTaxes:
+          type: number
+          format: double
+        netPay:
+          type: number
+          format: double
+        employerSocialSecurity:
+          type: number
+          format: double
+        employerMedicare:
+          type: number
+          format: double
+        futa:
+          type: number
+          format: double
+        employerTaxes:
+          type: number
+          format: double
+        totalCost:
+          type: number
+          format: double
     PayRun:
       type: object
-      required: [id, payPeriodId, status, createdAt, totalHours, grossPay, lines]
+      required: [id, payPeriodId, status, createdAt, totalHours, grossPay, federalWithholding, stateWithholding, socialSecurity, medicare, employeeTaxes, netPay, employerSocialSecurity, employerMedicare, futa, employerTaxes, totalCost, complianceWarnings, lines]
       properties:
         id:
           type: integer
@@ -437,6 +560,43 @@ components:
         grossPay:
           type: number
           format: double
+        federalWithholding:
+          type: number
+          format: double
+        stateWithholding:
+          type: number
+          format: double
+        socialSecurity:
+          type: number
+          format: double
+        medicare:
+          type: number
+          format: double
+        employeeTaxes:
+          type: number
+          format: double
+        netPay:
+          type: number
+          format: double
+        employerSocialSecurity:
+          type: number
+          format: double
+        employerMedicare:
+          type: number
+          format: double
+        futa:
+          type: number
+          format: double
+        employerTaxes:
+          type: number
+          format: double
+        totalCost:
+          type: number
+          format: double
+        complianceWarnings:
+          type: array
+          items:
+            type: string
         lines:
           type: array
           items:

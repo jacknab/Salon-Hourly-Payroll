@@ -20,7 +20,7 @@ export function Shell({ children }: { children: ReactNode }) {
         <div className="flex items-center justify-between px-3">
           <Link href="/" className="flex items-center gap-3" onClick={() => setOpen(false)} data-testid="link-brand">
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground"><Scissors className="h-5 w-5" /></span>
-            <span><span className="block font-display text-[19px] font-bold tracking-[-0.04em]">Morrow</span><span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-sidebar-foreground/55">Salon payroll</span></span>
+            <span><span className="block font-display text-[19px] font-bold tracking-[-0.04em]">Morrow</span><span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-sidebar-foreground/55">Payroll workspace</span></span>
           </Link>
           <button className="rounded-lg p-2 text-sidebar-foreground/70 lg:hidden" onClick={() => setOpen(false)} aria-label="Close navigation" data-testid="button-close-navigation"><X className="h-4 w-4" /></button>
         </div>
@@ -43,7 +43,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <main className="min-h-[100dvh] lg:pl-[252px]">
         <header className="sticky top-0 z-20 flex h-[72px] items-center justify-between border-b hairline bg-background/90 px-5 backdrop-blur-md sm:px-8 lg:px-12">
           <button className="rounded-xl border hairline bg-card p-2.5 lg:hidden" onClick={() => setOpen(true)} aria-label="Open navigation" data-testid="button-open-navigation"><Menu className="h-5 w-5" /></button>
-          <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex"><CalendarDays className="h-4 w-4" /> {new Date().getFullYear()} payroll workspace</div>
+          <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex"><CalendarDays className="h-4 w-4" /> {new Date().getFullYear()} payroll review workspace</div>
           <div className="ml-auto flex items-center gap-3"><div className="grid h-9 w-9 place-items-center rounded-full bg-secondary font-display text-sm font-bold text-primary">JR</div><div className="hidden text-right sm:block"><p className="text-xs font-bold">Jamie Reed</p><p className="text-[11px] text-muted-foreground">Owner · Morrow Studio</p></div></div>
         </header>
         <div className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 lg:px-12 lg:py-10">{children}</div>

@@ -17,5 +17,17 @@ export interface PayRun {
   finalizedAt?: Date | null;
   totalHours: number;
   grossPay: number;
+  federalWithholding: number;
+  stateWithholding: number;
+  socialSecurity: number;
+  medicare: number;
+  employeeTaxes: number;
+  netPay: number;
+  employerSocialSecurity: number;
+  employerMedicare: number;
+  futa: number;
+  employerTaxes: number;
+  totalCost: number;
+  complianceWarnings: string[];
   lines: PayrollLine[];
 }

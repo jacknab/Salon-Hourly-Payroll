@@ -7,15 +7,15 @@ import { Button } from '@/components/ui/button';
 
 export default function Dashboard() {
   const summary = useGetPayrollSummary();
-  if (summary.isLoading) return <><PageHeader eyebrow="Good morning, Jamie" title="Payroll, at a glance." description="Pulling together your latest hours and pay period." /><LoadingRows count={5} /></>;
-  if (summary.isError || !summary.data) return <><PageHeader eyebrow="Good morning, Jamie" title="Payroll, at a glance." description="Your workspace is ready when the connection is restored." /><ErrorState onRetry={() => summary.refetch()} /></>;
+  if (summary.isLoading) return <><PageHeader eyebrow="Good morning, Jamie" title="Payroll review, at a glance." description="Pulling together your latest hours and pay period." /><LoadingRows count={5} /></>;
+  if (summary.isError || !summary.data) return <><PageHeader eyebrow="Good morning, Jamie" title="Payroll review, at a glance." description="Your workspace is ready when the connection is restored." /><ErrorState onRetry={() => summary.refetch()} /></>;
   const data = summary.data;
   const period = data.currentPayPeriod;
   const ready = Boolean(period && period.status !== 'open');
   const todayLabel = dateLabel(new Date().toISOString(), { weekday: 'long', month: 'long', day: 'numeric' });
   return (
     <div>
-      <PageHeader eyebrow={`${todayLabel} · Good morning, Jamie`} title="Payroll, at a glance." description="The room is quiet. Here is what needs your attention before the doors open." action={<Link href="/time" className="inline-flex"><Button data-testid="button-add-hours"><Plus className="h-4 w-4" /> Add hours</Button></Link>} />
+      <PageHeader eyebrow={`${todayLabel} · Good morning, Jamie`} title="Payroll review, at a glance." description="The room is quiet. Here is what needs your attention before the doors open." action={<Link href="/time" className="inline-flex"><Button data-testid="button-add-hours"><Plus className="h-4 w-4" /> Add hours</Button></Link>} />
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 animate-in-up-delay">
         <StatCard label="Active staff" value={String(data.activeStaff)} detail="Hourly team members" accent="ink" icon={<Users className="h-5 w-5" />} />
         <StatCard label="Hours to review" value={`${data.pendingHours.toFixed(1)}h`} detail="Across the current period" accent="gold" icon={<Clock3 className="h-5 w-5" />} />
